@@ -13,6 +13,7 @@
 #define GOTOXY(x, y) printf("%c[%d;%df",0x1B,y,x);
 #define HIDECURSOR printf("\e[?25l");
 #define SHOWCURSOR printf("\e[?25h");
+
 int main() { 
     int a;   
     CLEAR; //limpia la pantalla
