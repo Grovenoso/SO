@@ -6,6 +6,7 @@
     #define CLEAR system("clear");
     #define SLEEP(x) std::this_thread::sleep_for(std::chrono::milliseconds(x));
 #endif
+
 #include <iostream>
 #include <stdio.h>
 #include <chrono>
