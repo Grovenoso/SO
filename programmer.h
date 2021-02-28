@@ -26,4 +26,9 @@ class programmer
 
 };
 
+int programmer::doOperation()
+{
+    return 0;
+}
+
 #endif
