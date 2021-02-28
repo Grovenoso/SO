@@ -11,17 +11,22 @@
 #include <stdio.h>
 #include <chrono>
 #include <thread>
+#include <queue>
+
 #define GOTOXY(x, y) printf("%c[%d;%df",0x1B,y,x);
 #define HIDECURSOR printf("\e[?25l");
 #define SHOWCURSOR printf("\e[?25h");
 
-int main() { 
+#include "programmer.h"
+
+int main()
+{
     int a;   
     CLEAR; //limpia la pantalla
     HIDECURSOR; //esconde el cursor
-    for (int i(0); i<20; i++) {
-        GOTOXY(i,i); //modifica la posición
-        SLEEP(500); //lo pone a dormir, pero que bonito
+    for(int i(0); i<3; ++i) {
+        GOTOXY(0,0); //modifica la posición
+        SLEEP(1000); //tiempo de espera (en milisegundos)
         std::cout<<i<<std::endl;
     }
     SHOWCURSOR; //muestra el cursor otra vez
