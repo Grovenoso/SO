@@ -6,29 +6,19 @@ class programmer
     public:
         void setName(std::string data) {name = data;};
         void setOperation(std::string data) {operation = data;};
-        void setEstimatedTime(std::string data) {estimatedTime = data;};
         void setID(std::string data) {ID = data;};
+        void setEstimatedTime(int data) {estimatedTime = data;};
+        void setResult(int data) {result = data;};
 
         std::string getName() {return name;};
         std::string getOperation() {return operation;};
-        std::string getEstimatedTime() {return estimatedTime;};
         std::string getID() {return ID;};
-
-        int doOperation();
+        int getEstimatedTime() {return estimatedTime;};
+        int getResult() {return result;};
 
     private:
-        std::string name;
-        std::string operation;
-        std::string estimatedTime;
-        std::string ID;
-
-        int num1, num2;
-
+        std::string name, operation, ID;
+        int num1, num2, estimatedTime, result;
 };
-
-int programmer::doOperation()
-{
-    return 0;
-}
 
 #endif

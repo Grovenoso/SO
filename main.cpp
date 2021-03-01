@@ -15,35 +15,126 @@
 #include <stdio.h>
 #include <chrono>
 #include <thread>
-#include <queue>
+#include <string>
+#include <vector>
 
 #include "programmer.h"
 
 using namespace std;
 
-void programmerEntry(queue<programmer> programmerQueue)
+void programmerEntry(vector<programmer*> programmerVector)
 {
-    bool option;
+    bool option, error = true;
     programmer* temporalProgrammer;
-    string data;
+    string data, tempData1, tempData2;
+    int num1 = 0, num2 = 0;
+    char operation;
 
     do{
-        cout<<"Bienvenido, si desea ingresar un nuevo programa ingrese el numero 1, de lo contrario, ingrese 0" << endl;
+        CLEAR;
+        cout<<"Bienvenido, si desea ingresar un nuevo programa ingrese el numero 1, de lo contrario, ingrese 0: ";
         cin>>option;
         if(option){
+            cin.ignore();
             temporalProgrammer = new programmer();
+            
             cout << "Ingrese el nombre del programador: ";
-            cin >> data;
+            getline(cin, data);
             temporalProgrammer -> setName(data);
             
+            do{
+                cout << "Ingrese la operacion que desea realizar: ";
+                getline(cin, data);
+                
+                //separacion de la operacion a terminos numericos
+                if(data.find('/') < data.size()){
+                    tempData1 = data.substr(0,data.find('/'));
+                    tempData2 = data.substr(data.find('/') + 1, data.length());
+                }
+
+                else if (data.find('%') < data.size()){
+                    tempData1 = data.substr(0, data.find('%'));
+                    tempData2 = data.substr(data.find('%') + 1, data.length());
+                }
+
+                else if (data.find('+') < data.size()){
+                    tempData1 = data.substr(0, data.find('+'));
+                    tempData2 = data.substr(data.find('+') + 1, data.length());
+                }
+
+                else if (data.find('-') < data.size()){
+                    tempData1 = data.substr(0, data.find('-'));
+                    tempData2 = data.substr(data.find('-') + 1, data.length());
+                }
+
+                else if (data.find('*') < data.size()){
+                    tempData1 = data.substr(0, data.find('*'));
+                    tempData2 = data.substr(data.find('*') + 1, data.length());
+                }
+
+                num1 = stoi(tempData1);
+                num2 = stoi(tempData2);
+                
+                //si la operacion es una division o residuo y el segundo (el divisor) es 0 se manda un error
+                if (((data.find('/') < data.size()) || (data.find('%') < data.size())) && !num2){
+                    cout << "La division entre 0 es matematicamente imposible, intente de nuevo";
+                    error = true;
+                    getchar();
+                }
+
+                //se realiza la operacion
+                else{
+                    temporalProgrammer -> setOperation(data);
+
+                    if (data.find('/') < data.size())
+                        temporalProgrammer -> setResult(num1/num2);
+                    else if (data.find('%') < data.size())
+                        temporalProgrammer -> setResult(num1%num2);
+                    else if (data.find('+') < data.size())
+                        temporalProgrammer -> setResult(num1+num2);
+                    else if (data.find('-') < data.size())
+                        temporalProgrammer -> setResult(num1-num2);
+                    else if (data.find('*') < data.size())
+                        temporalProgrammer -> setResult(num1*num2);
+
+                    error = false;
+                }
+            }while(error);
+            
+            do{
+                cout << "Ingrese el tiempo maximo estimado del programa: ";
+                cin >> num1;
+                
+                //el tiempo maximo estimado debe ser mayor a 0
+                if(num1 > 0)
+                    temporalProgrammer -> setEstimatedTime(num1);
+                else
+                    cout << "El tiempo maximo estimado del programa debe ser mayor a 0, intente de nuevo" << endl;
+                    getchar();
+            }while(num1 <= 0);
+
+            do{
+                cout << "Ingrese el ID del programa: ";
+                getline(cin, data);
+                for(int i(0); i<programmerVector.size(); ++i){
+                    if(data == programmerVector[i]->getID()){
+                        cout << "El ID ya es existente, intente de nuevo";
+                        getchar();
+                        error = true;
+                        break;
+                    }
+                }
+            }while(error);
+            programmerVector.push_back(temporalProgrammer);
         }
     }while(option);
 }
 
 int main()
 {
-    queue <programmer> programmerQueue;
+    vector <programmer*> programmerVector;
     int a;   
+    /*
     CLEAR; //limpia la pantalla
     HIDECURSOR; //esconde el cursor
     for(int i(0); i<3; ++i) {
@@ -53,4 +144,6 @@ int main()
     }
     SHOWCURSOR; //muestra el cursor otra vez
     cin>>a;
+    */
+    programmerEntry(programmerVector);
 }
