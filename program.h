@@ -1,7 +1,7 @@
-#ifndef PROGRAMMER_H
-#define PROGRAMMER_H
+#ifndef PROGRAM_H
+#define PROGRAM_H
 
-class programmer
+class program
 {
     public:
         void setName(std::string data) {name = data;};
