@@ -22,14 +22,16 @@
 
 using namespace std;
 
-void programmerEntry(vector<programmer*> programmerVector);
+void programmerEntry(vector<programmer*> &programmerVector);
+void programmerProccessing(vector<programmer*> &programmerVector);
 
 int main()
 {
     vector <programmer*> programmerVector;
     int a;   
-    programmerEntry(programmerVector);
 
+    programmerEntry(programmerVector);
+    programmerProccessing(programmerVector);
     /*
     CLEAR; //limpia la pantalla
     HIDECURSOR; //esconde el cursor
@@ -41,9 +43,10 @@ int main()
     SHOWCURSOR; //muestra el cursor otra vez
     cin>>a;
     */
+   return 0;
 }
 
-void programmerEntry(vector<programmer*> programmerVector)
+void programmerEntry(vector<programmer*> &programmerVector)
 {
     bool option, error = true;
     programmer *temporalProgrammer;
@@ -57,9 +60,9 @@ void programmerEntry(vector<programmer*> programmerVector)
         cin >> option;
 
         if (option){
-            cin.ignore();
             temporalProgrammer = new programmer();
 
+            cin.ignore();
             cout << "Ingrese el nombre del programador: ";
             getline(cin, data);
             temporalProgrammer->setName(data);
@@ -132,7 +135,7 @@ void programmerEntry(vector<programmer*> programmerVector)
                 if (num1 > 0)
                     temporalProgrammer->setEstimatedTime(num1);
                 else{
-                    cout << endl << "El tiempo maximo estimado del programa debe ser mayor a 0, intente de nuevo" << endl;
+                    cout << endl << "El tiempo maximo estimado del programa debe ser mayor a 0, intente de nuevo";
                     getchar();
                 }
             } while (num1 <= 0);
@@ -145,7 +148,7 @@ void programmerEntry(vector<programmer*> programmerVector)
 
                 for (int i(0); i < programmerVector.size(); i++){
                     if (data == programmerVector[i]->getID()){
-                        cout << "El ID ya es existente, intente de nuevo";
+                        cout << endl << "El ID ya es existente, intente de nuevo";
                         getchar();
                         error = true;
                         break;
@@ -162,4 +165,14 @@ void programmerEntry(vector<programmer*> programmerVector)
             programmerVector.push_back(temporalProgrammer);
         }
     } while (option);
+}
+
+void programmerProccessing(vector<programmer*> &programmerVector)
+{
+    int count=1, totalTime=0;
+
+    for(int i(0); i<programmerVector.size(); i++){
+        cout << "Lote numero: " << count/5 << "\t\tLotes restantes: " << (programmerVector.size()-count)/5;
+        getchar();
+    }
 }
