@@ -1,6 +1,13 @@
 #ifndef PROGRAM_H
 #define PROGRAM_H
 
+#include <iostream>
+#include <stdio.h>
+#include <chrono>
+#include <thread>
+#include <string>
+#include <vector>
+
 class program
 {
     public:
