@@ -3,8 +3,6 @@
 
 #include "program.h"
 
-using namespace std;
-
 class batchfile
 {
     public:
