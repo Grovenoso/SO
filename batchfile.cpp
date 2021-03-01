@@ -13,61 +13,54 @@
 
 #include "batchfile.h"
 
-void batchfile::programEntry(vector<program *> & programVector)
+void batchfile::programEntry(std::vector<program *> & programVector)
 {
-    bool option, error = true;
+    bool error = true;
     program *temporalProgram;
-    string data, tempData1, tempData2;
-    int num1 = 0, num2 = 0;
+    std::string data, tempData1, tempData2;
+    int num1 = 0, num2 = 0, option;
     char operation;
 
-    do
-    {
+    do{
         CLEAR;
-        cout << "Bienvenido, si desea ingresar un nuevo programa ingrese 1, de lo contrario, ingrese 0: ";
-        cin >> option;
-        cin.ignore();
+        std::cout << "Bienvenido, si desea ingresar un nuevo programa ingrese cualquier numero"
+                    <<", de lo contrario, ingrese 0: ";
+        std::cin >> option;
+        std::cin.ignore();
 
-        if (option)
-        {
+        if (option){
             temporalProgram = new program();
 
-            cout << "Ingrese el nombre del programador: ";
-            getline(cin, data);
+            std::cout << "Ingrese el nombre del programador: ";
+            getline(std::cin, data);
             temporalProgram->setName(data);
 
-            do
-            {
-                cout << "Ingrese la operacion que desea realizar: ";
-                getline(cin, data);
+            do{
+                std::cout << "Ingrese la operacion que desea realizar: ";
+                getline(std::cin, data);
 
                 //separacion de la operacion a terminos numericos
-                if (data.find('/') < data.size())
-                {
+                if (data.find('/') < data.size()){
                     tempData1 = data.substr(0, data.find('/'));
                     tempData2 = data.substr(data.find('/') + 1, data.length());
                 }
 
-                else if (data.find('%') < data.size())
-                {
+                else if (data.find('%') < data.size()){
                     tempData1 = data.substr(0, data.find('%'));
                     tempData2 = data.substr(data.find('%') + 1, data.length());
                 }
 
-                else if (data.find('+') < data.size())
-                {
+                else if (data.find('+') < data.size()){
                     tempData1 = data.substr(0, data.find('+'));
                     tempData2 = data.substr(data.find('+') + 1, data.length());
                 }
 
-                else if (data.find('-') < data.size())
-                {
+                else if (data.find('-') < data.size()){
                     tempData1 = data.substr(0, data.find('-'));
                     tempData2 = data.substr(data.find('-') + 1, data.length());
                 }
 
-                else if (data.find('*') < data.size())
-                {
+                else if (data.find('*') < data.size()){
                     tempData1 = data.substr(0, data.find('*'));
                     tempData2 = data.substr(data.find('*') + 1, data.length());
                 }
@@ -77,17 +70,15 @@ void batchfile::programEntry(vector<program *> & programVector)
                 num2 = stoi(tempData2);
 
                 //si la operacion es una division o residuo y el segundo (el divisor) es 0 se manda un error
-                if (((data.find('/') < data.size()) || (data.find('%') < data.size())) && !num2)
-                {
-                    cout << endl
+                if (((data.find('/') < data.size()) || (data.find('%') < data.size())) && !num2){
+                    std::cout << std::endl
                             << "La division entre 0 es matematicamente imposible, intente de nuevo";
                     error = true;
                     getchar();
                 }
 
                 //se realiza la operacion y se guardan los datos
-                else
-                {
+                else{
                     temporalProgram->setOperation(data);
 
                     if (data.find('/') < data.size())
@@ -105,34 +96,32 @@ void batchfile::programEntry(vector<program *> & programVector)
                 }
             } while (error);
 
-            do
-            {
-                cout << "Ingrese el tiempo maximo estimado del programa: ";
-                cin >> num1;
+            do{
+                std::cout << "Ingrese el tiempo maximo estimado del programa: ";
+                std::cin >> num1;
 
                 //el tiempo maximo estimado debe ser mayor a 0
                 if (num1 > 0)
                     temporalProgram->setEstimatedTime(num1);
-                else
-                {
-                    cout << endl
-                            << "El tiempo maximo estimado del programa debe ser mayor a 0, intente de nuevo";
+                
+                else{
+                    std::cout << std::endl
+                        << "El tiempo maximo estimado del programa debe ser mayor a 0, intente de nuevo";
                     getchar();
                 }
             } while (num1 <= 0);
 
-            cin.ignore();
-            do
-            {
+            std::cin.ignore();
+            do{
                 error = false;
-                cout << "Ingrese el ID del programa: ";
-                getline(cin, data);
+                std::cout << "Ingrese el ID del programa: ";
+                getline(std::cin, data);
 
                 for (int i(0); i < programVector.size(); i++)
                 {
                     if (data == programVector[i]->getID())
                     {
-                        cout << endl
+                        std::cout << std::endl
                                 << "El ID ya es existente, intente de nuevo";
                         getchar();
                         error = true;
@@ -153,19 +142,19 @@ void batchfile::programEntry(vector<program *> & programVector)
     } while (option);
 }
 
-void batchfile::programProccessing(vector<program *> &programVector)
+void batchfile::programProccessing(std::vector<program *> &programVector)
 {
     HIDECURSOR; //esconde el cursor
-    for (int i(0); i < programVector.size(); i++)
-    {
-        cout << "Lote numero: " << (counter / 5) + 1 << " Operacion: " << counter << "\t\tLotes restantes: " << (programVector.size() - counter) / 5 << endl;
+    for (int i(0); i < programVector.size(); i++){
+        std::cout << "Lote numero: " << (counter / 5) + 1 
+                << " Operacion: " << counter 
+                << "\t\tLotes restantes: " << (programVector.size() - counter) / 5 << std::endl;
         counter++;
-        cout << "Nombre Programador " << programVector[i]->getName() << endl
-             << "ID " << programVector[i]->getID() << endl
-             << "Operacion " << programVector[i]->getOperation() << endl
-             << "Resultado " << programVector[i]->getResult() << endl
-             << "Tiempo estimado de opearcion " << programVector[i]->getEstimatedTime() << endl;
-        GOTOXY(0, 0);
+        std::cout << "Nombre Programador " << programVector[i]->getName() << std::endl
+                  << "ID " << programVector[i]->getID() << std::endl
+                  << "Operacion " << programVector[i]->getOperation() << std::endl
+                  << "Resultado " << programVector[i]->getResult() << std::endl
+                  << "Tiempo estimado de operacion " << programVector[i]->getEstimatedTime() << std::endl;
         SLEEP(1000); //tiempo de espera (en milisegundos)
     }
     SHOWCURSOR; //muestra el cursor otra vez

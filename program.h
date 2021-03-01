@@ -8,20 +8,19 @@
 #include <string>
 #include <vector>
 
-using namespace std;
 
 class program
 {
     public:
-        void setName(string data) {name = data;};
-        void setOperation(string data) {operation = data;};
-        void setID(string data) {ID = data;};
+        void setName(std::string data) {name = data;};
+        void setOperation(std::string data) {operation = data;};
+        void setID(std::string data) {ID = data;};
         void setEstimatedTime(int data) {estimatedTime = data;};
         void setResult(int data) {result = data;};
 
-        string getName() {return name;};
-        string getOperation() {return operation;};
-        string getID() {return ID;};
+        std::string getName() {return name;};
+        std::string getOperation() {return operation;};
+        std::string getID() {return ID;};
         int getEstimatedTime() {return estimatedTime;};
         int getResult() {return result;};
 
