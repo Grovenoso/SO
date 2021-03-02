@@ -160,7 +160,7 @@ void batchfile::programProccessing(std::vector<program *> &programVector)
         std::cout << std::endl << "Procesos pendientes del lote";
         for(int j(i+1); j%5 !=0 && j<programVector.size(); ++j){
             std::cout << std::endl << "Nombre: " << programVector.at(j)->getName() << std::endl
-                << "Tiempo máximo estimado: " << programVector.at(j)->getEstimatedTime() << std::endl;
+                << "Tiempo maximo estimado: " << programVector.at(j)->getEstimatedTime() << std::endl;
         }
         
         //Proceso en ejecucion
