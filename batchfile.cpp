@@ -23,7 +23,7 @@ void batchfile::programEntry(std::vector<program *> & programVector)
 
     do{
         CLEAR;
-        std::cout << "Bienvenido, si desea ingresar un nuevo programa ingrese cualquier numero"
+        std::cout << "Bienvenido, si desea un nuevo ingreso ingrese cualquier numero"
                     <<", de lo contrario, ingrese 0: ";
         std::cin >> option;
         std::cin.ignore();
@@ -144,18 +144,52 @@ void batchfile::programEntry(std::vector<program *> & programVector)
 
 void batchfile::programProccessing(std::vector<program *> &programVector)
 {
+    std::vector<program*> aux;
+    int programTime;
+
     HIDECURSOR; //esconde el cursor
     for (int i(0); i < programVector.size(); i++){
-        std::cout << "Lote numero: " << (counter / 5) + 1 
-                << " Operacion: " << counter 
-                << "\t\tLotes restantes: " << (programVector.size() - counter) / 5 << std::endl;
+        CLEAR;
+        programTime = 0;
+        
+        //Lote en ejecucion
+        GOTOXY(0,8);
+        std::cout << std::endl << "Lote en operacion: " << (i/5)+1 << std::endl;
+    
+        GOTOXY(0,10);
+        std::cout << std::endl << "Procesos pendientes del lote";
+        for(int j(i+1); j%5 !=0 && j<programVector.size(); ++j){
+            std::cout << std::endl << "Nombre: " << programVector.at(j)->getName() << std::endl
+                << "Tiempo máximo estimado: " << programVector.at(j)->getEstimatedTime() << std::endl;
+        }
+        
+        //Proceso en ejecucion
+        for(int j(programVector[i]->getEstimatedTime()); j>0; --j){
+            GOTOXY(0,0)
+
+            std::cout << "Programa en ejecucion" << std::endl
+                << "Nombre Programador: " << programVector[i]->getName() << std::endl
+                << "Operacion: " << programVector[i]->getOperation() << std::endl
+                << "Tiempo estimado de operacion: " << programVector[i]->getEstimatedTime() << std::endl
+                << "Numero de programa: " << i + 1 << std::endl
+                << "Tiempo transcurrido: " << programTime << std::endl
+                << "Tiempo restante de ejecucion: ";
+            if(j/10 == 0)
+                std::cout << j << " " << std::endl;
+            else
+                std::cout << j << std::endl;
+            
+            programTime++;
+            SLEEP(2000); //tiempo de espera (en milisegundos)
+        }
         counter++;
-        std::cout << "Nombre Programador " << programVector[i]->getName() << std::endl
-                  << "ID " << programVector[i]->getID() << std::endl
-                  << "Operacion " << programVector[i]->getOperation() << std::endl
-                  << "Resultado " << programVector[i]->getResult() << std::endl
-                  << "Tiempo estimado de operacion " << programVector[i]->getEstimatedTime() << std::endl;
-        SLEEP(1000); //tiempo de espera (en milisegundos)
     }
+    
     SHOWCURSOR; //muestra el cursor otra vez
 }
+/*
+GOTOXY(80,1);
+std::cout << "Lotes restantes: " << (programVector.size() - i) / 5 << std::endl
+    << "Lote en operacion: " << (i/5)+1 << std::endl;
+counter++;
+*/
