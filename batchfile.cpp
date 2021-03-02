@@ -162,6 +162,11 @@ void batchfile::programProccessing(std::vector<program *> &programVector)
             std::cout << std::endl << "Nombre: " << programVector.at(j)->getName() << std::endl
                 << "Tiempo maximo estimado: " << programVector.at(j)->getEstimatedTime() << std::endl;
         }
+
+        GOTOXY(40,1);
+        std::cout << "Hola,";
+        GOTOXY(40,2);
+        std::cout <<"buenas tardes";
         
         //Proceso en ejecucion
         for(int j(programVector[i]->getEstimatedTime()); j>0; --j){
