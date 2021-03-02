@@ -6,12 +6,12 @@
 class batchfile
 {
     public:
-        batchfile(){counter=0; totalTime=0;}
+        batchfile(){totalTime=0;}
         void programEntry(std::vector<program*> &programVector);
         void programProccessing(std::vector<program *> &programVector);
 
     private:
-        int counter, totalTime;
+        int totalTime;
 };
 
 #endif
