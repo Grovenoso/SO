@@ -180,7 +180,7 @@ void batchfile::programProccessing(std::vector<program *> &programVector)
                 std::cout << j << std::endl;
             
             programTime++;
-            SLEEP(2000); //tiempo de espera (en milisegundos)
+            SLEEP(1000); //tiempo de espera (en milisegundos)
         }
         counter++;
     }
