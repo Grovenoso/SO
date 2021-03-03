@@ -170,6 +170,7 @@ void batchfile::programProccessing(std::vector<program *> &programVector)
             std::cout << "Lotes procesados";
         }
         for(int j(0); j<i; j++){
+            //Batch done tag appears at the beggining
             if(j%5==0){
                 GOTOXY(40,(j*5)+2);
                 std::cout << "Lote #" << (j/5)+1;
@@ -181,6 +182,7 @@ void batchfile::programProccessing(std::vector<program *> &programVector)
             GOTOXY(40, (j*5)+5);
             std::cout <<"Resultado: " << programVector[j]->getResult();
 
+            //Batch done separation appears at the end of the batch
             if (j%5==4){
                 GOTOXY(40, (j*5)+6);
                 std::cout << ".-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.";
