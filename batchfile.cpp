@@ -127,6 +127,7 @@ void batchfile::programEntry(std::vector<program *> & programVector)
             programVector.push_back(temporalProgram);
         }
     } while (option);
+
 }
 
 void batchfile::programProccessing(std::vector<program *> &programVector)
@@ -135,7 +136,7 @@ void batchfile::programProccessing(std::vector<program *> &programVector)
     int programTime;
 
     HIDECURSOR; //Hides the cursor
-    for (int i(0); i < programVector.size(); i++){
+    for (int i(0); i < programVector.size()+1; i++){
         
         CLEAR;
         programTime = 0; //time for the program in execution
@@ -177,20 +178,22 @@ void batchfile::programProccessing(std::vector<program *> &programVector)
         }
 
         //Program in execution
-        for(int j(programVector[i]->getEstimatedTime()); j>0; --j){
-            GOTOXY(0,0);
-            std::cout << "Programa en ejecucion" << std::endl
-                << "Nombre Programador: " << programVector[i]->getName() << std::endl
-                << "Operacion: " << programVector[i]->getOperation() << std::endl
-                << "Tiempo estimado de operacion: " << programVector[i]->getEstimatedTime() << std::endl
-                << "Numero de programa: " << i + 1 << std::endl
-                << "Tiempo transcurrido: " << programTime << std::endl
-                << "Tiempo restante de ejecucion: " << j << std::endl 
-                << "Tiempo global: " << totalTime;
-            
-            SLEEP(1000); // pause (in miliseconds)
-            programTime++;
-            totalTime++;
+        if(i<programVector.size()){
+            for(int j(programVector[i]->getEstimatedTime()); j>0; --j){
+                GOTOXY(0,0);
+                std::cout << "Programa en ejecucion" << std::endl
+                    << "Nombre Programador: " << programVector[i]->getName() << std::endl
+                    << "Operacion: " << programVector[i]->getOperation() << std::endl
+                    << "Tiempo estimado de operacion: " << programVector[i]->getEstimatedTime() << std::endl
+                    << "Numero de programa: " << i + 1 << std::endl
+                    << "Tiempo transcurrido: " << programTime << std::endl
+                    << "Tiempo restante de ejecucion: " << j << std::endl 
+                    << "Tiempo global: " << totalTime;
+                
+                SLEEP(1000); // pause (in miliseconds)
+                programTime++;
+                totalTime++;
+            }
         }
     }
     
