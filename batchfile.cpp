@@ -104,10 +104,8 @@ void batchfile::programEntry(std::vector<program *> & programVector)
                 std::cout << "Ingrese el ID del programa: ";
                 getline(std::cin, data);
 
-                for (int i(0); i < programVector.size(); i++)
-                {
-                    if (data == programVector[i]->getID())
-                    {
+                for (int i(0); i < programVector.size(); i++){
+                    if (data == programVector[i]->getID()){
                         std::cout << std::endl
                                 << "El ID ya es existente, intente de nuevo";
                         getchar();
@@ -116,8 +114,7 @@ void batchfile::programEntry(std::vector<program *> & programVector)
                     }
                 }
 
-                if (!error)
-                {
+                if (!error){
                     temporalProgram->setID(data);
                 }
 
