@@ -6,7 +6,7 @@
 class batchfile
 {
     public:
-        batchfile(){totalTime=0;}
+        batchfile(){totalTime=1;}
         void programEntry(std::vector<program*> &programVector);
         void programProccessing(std::vector<program *> &programVector);
 

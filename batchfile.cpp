@@ -169,43 +169,39 @@ void batchfile::programProccessing(std::vector<program *> &programVector)
             GOTOXY(40,0);
             std::cout << "Lotes procesados";
         }
-        for(int j(0); j<i; j+=5){
-            GOTOXY(40,2);
-            std::cout << "Lote #" << (j/5)+1;
-            
-            for(int k(0); k%5 != 0; ++k){
-                GOTOXY(40,(k+3));
-                std::cout << "ID: " << programVector[k]->getID();
-                GOTOXY(40, (k+4));
-                std::cout << "Operacion: " << programVector[k]->getOperation();
-                GOTOXY(40, (k+5));
-                std::cout <<"Resultado: " << programVector[k]->getResult();
-                GOTOXY(40,(j*5)+1);
+        for(int j(0); j<i; j++){
+            if(j%5==0){
+                GOTOXY(40,(j*5)+2);
+                std::cout << "Lote #" << (j/5)+1;
             }
-            std::cout << ".-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.";
+            GOTOXY(40, (j*5)+3);
+            std::cout << "ID: " << programVector[j]->getID();
+            GOTOXY(40, (j*5)+4);
+            std::cout << "Operacion: " << programVector[j]->getOperation();
+            GOTOXY(40, (j*5)+5);
+            std::cout <<"Resultado: " << programVector[j]->getResult();
+
+            if (j%5==4){
+                GOTOXY(40, (j*5)+6);
+                std::cout << ".-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.";
+            }
         }
-        
+
         //Program in execution
         for(int j(programVector[i]->getEstimatedTime()); j>0; --j){
-            GOTOXY(0,0)
-
-            std::cout << std::endl << "Programa en ejecucion" << std::endl
+            GOTOXY(0,0);
+            std::cout << "Programa en ejecucion" << std::endl
                 << "Nombre Programador: " << programVector[i]->getName() << std::endl
                 << "Operacion: " << programVector[i]->getOperation() << std::endl
                 << "Tiempo estimado de operacion: " << programVector[i]->getEstimatedTime() << std::endl
                 << "Numero de programa: " << i + 1 << std::endl
                 << "Tiempo transcurrido: " << programTime << std::endl
-                << "Tiempo restante de ejecucion: " << j;
-
-            //shows time caring for the digits
-            for(int k(0); k<programVector[i]->getEstimatedTime(); ++k)
-                std::cout << " ";
+                << "Tiempo restante de ejecucion: " << j << std::endl 
+                << "Tiempo global: " << totalTime;
             
-            std::cout << std::endl << "Tiempo global: " << totalTime;
-            
+            SLEEP(1000); // pause (in miliseconds)
             programTime++;
             totalTime++;
-            SLEEP(1000); // pause (in miliseconds)
         }
     }
     
