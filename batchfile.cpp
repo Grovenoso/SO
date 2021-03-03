@@ -1,16 +1,3 @@
-#if _WIN64 || _WIN32
-#define CLEAR system("cls")
-#include <Windows.h>
-#define SLEEP(x) Sleep(x);
-#else
-#define CLEAR system("clear");
-#define SLEEP(x) std::this_thread::sleep_for(std::chrono::milliseconds(x));
-#endif
-
-#define GOTOXY(x, y) printf("%c[%d;%df", 0x1B, y, x);
-#define HIDECURSOR printf("\e[?25l");
-#define SHOWCURSOR printf("\e[?25h");
-
 #include "batchfile.h"
 
 void batchfile::programEntry(std::vector<program *> & programVector)
