@@ -140,11 +140,11 @@ void batchfile::programProccessing(std::vector<program *> &programVector)
         
         //Batch in immediate queue
         GOTOXY(0,10);
-        std::cout << std::endl << "Lote en operacion: " << (i/5)+1 << std::endl;
+        std::cout << std::endl << "Lote en operacion: " << (i/batchSize)+1 << std::endl;
     
         GOTOXY(0,11);
         std::cout << std::endl << "Procesos pendientes del lote";
-        for(int j(i+1); j%5 !=0 && j<programVector.size(); ++j){
+        for(int j(i+1); j%batchSize !=0 && j<programVector.size(); ++j){
             std::cout << std::endl << "Nombre: " << programVector.at(j)->getName() << std::endl
                 << "Tiempo maximo estimado: " << programVector.at(j)->getEstimatedTime() << std::endl;
         }
@@ -156,20 +156,20 @@ void batchfile::programProccessing(std::vector<program *> &programVector)
         }
         for(int j(0); j<i; j++){
             //Batch done tag appears at the beggining
-            if(j%5==0){
-                GOTOXY(40,(j*5)+2);
-                std::cout << "Lote #" << (j/5)+1;
+            if(j%batchSize==0){
+                GOTOXY(40,((j-1)*4)+7);
+                std::cout << "Lote #" << (j/batchSize)+1;
             }
-            GOTOXY(40, (j*5)+3);
+            GOTOXY(40, (j*4)+4);
             std::cout << "ID: " << programVector[j]->getID();
-            GOTOXY(40, (j*5)+4);
+            GOTOXY(40, (j*4)+5);
             std::cout << "Operacion: " << programVector[j]->getOperation();
-            GOTOXY(40, (j*5)+5);
+            GOTOXY(40, (j*4)+6);
             std::cout <<"Resultado: " << programVector[j]->getResult();
 
             //Batch done separation appears at the end of the batch
-            if (j%5==4){
-                GOTOXY(40, (j*5)+6);
+            if (j%batchSize==4){
+                GOTOXY(40,(j*4)+7);
                 std::cout << ".-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.";
             }
         }
@@ -187,8 +187,7 @@ void batchfile::programProccessing(std::vector<program *> &programVector)
                     << "Tiempo restante de ejecucion: ";
                     if(j<10) 
                         std::cout << "0";
-                    else 
-                        std::cout << j;
+                    std::cout << j;
                     std::cout << std::endl << "Tiempo global: " << totalTime;
                 
                 SLEEP(1000); // pause (in miliseconds)

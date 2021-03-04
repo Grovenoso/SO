@@ -11,7 +11,7 @@ class batchfile
         void programProccessing(std::vector<program *> &programVector);
 
     private:
-        int totalTime;
+        int totalTime, batchSize = 5;
 };
 
 #endif
