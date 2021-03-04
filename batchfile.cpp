@@ -58,8 +58,8 @@ void batchfile::programEntry(std::vector<program *> & programVector)
 
                 //si la operacion es una division o residuo y el segundo (el divisor) es 0 se manda un error
                 if (((data.find('/') < data.size()) || (data.find('%') < data.size())) && !num2){
-                    std::cout << std::endl
-                            << "La division entre 0 es matematicamente imposible, intente de nuevo";
+                    std::cout << std::endl << "La division entre 0 es matematicamente imposible, intente de nuevo"
+                        << std::endl << "Presione enter para continuar";
                     error = true;
                     getchar();
                 }
@@ -184,8 +184,10 @@ void batchfile::programProccessing(std::vector<program *> &programVector)
                     << "Tiempo estimado de operacion: " << programVector[i]->getEstimatedTime() << std::endl
                     << "Numero de programa: " << i + 1 << std::endl
                     << "Tiempo transcurrido: " << programTime << std::endl
-                    << "Tiempo restante de ejecucion: " << j << std::endl 
-                    << "Tiempo global: " << totalTime;
+                    << "Tiempo restante de ejecucion: ";
+                    if(j<10) 
+                        std::cout << "0" << j << std::endl;
+                    std::cout<< "Tiempo global: " << totalTime;
                 
                 SLEEP(1000); // pause (in miliseconds)
                 programTime++;
