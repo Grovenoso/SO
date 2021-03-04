@@ -186,8 +186,10 @@ void batchfile::programProccessing(std::vector<program *> &programVector)
                     << "Tiempo transcurrido: " << programTime << std::endl
                     << "Tiempo restante de ejecucion: ";
                     if(j<10) 
-                        std::cout << "0" << j << std::endl;
-                    std::cout<< "Tiempo global: " << totalTime;
+                        std::cout << "0";
+                    else 
+                        std::cout << j;
+                    std::cout << std::endl << "Tiempo global: " << totalTime;
                 
                 SLEEP(1000); // pause (in miliseconds)
                 programTime++;
