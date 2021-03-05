@@ -2,11 +2,10 @@
 
 int main()
 {
-    std::vector <program*> programVector;
     batchfile program1;
 
-    program1.programEntry(programVector);
-    program1.programProccessing(programVector);
+    program1.programEntry();
+    program1.programProccessing();
     getchar();
     return 0;
 }

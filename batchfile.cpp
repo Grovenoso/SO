@@ -1,10 +1,12 @@
 #include "batchfile.h"
 
-void batchfile::programEntry(std::vector<program *> & programVector)
+void batchfile::programEntry()
 {
-    bool error = true;
     program *temporalProgram;
+    std::vector<program *> batchVector;
     std::string data, tempData1, tempData2;
+    
+    bool error = true;
     int num1 = 0, num2 = 0, option;
     char operation;
 
@@ -104,8 +106,8 @@ void batchfile::programEntry(std::vector<program *> & programVector)
                 std::cout << "Ingrese el ID del programa: ";
                 getline(std::cin, data);
 
-                for (int i(0); i < programVector.size(); i++){
-                    if (data == programVector[i]->getID()){
+                for (int i(0); i < batchVector.size(); i++){
+                    if (data == batchVector[i]->getID()){
                         std::cout << std::endl
                                 << "El ID ya es existente, intente de nuevo";
                         getchar();
@@ -121,81 +123,24 @@ void batchfile::programEntry(std::vector<program *> & programVector)
             } while (error);
 
             //al terminar la captura de datos del programa, se añade al vector
-            programVector.push_back(temporalProgram);
+            batchVector.push_back(temporalProgram);
+            if(batchVector.size() == batchSize){
+                programMatrix.push_back(batchVector);
+                batchVector.clear();
+            }
         }
     } while (option);
-
+    if(batchVector.size() > 0){
+        programMatrix.push_back(batchVector);
+    }
 }
 
-void batchfile::programProccessing(std::vector<program *> &programVector)
+void batchfile::programProccessing()
 {
-    std::vector<program*> aux;
+    std::vector<program *> auxVector;
     int programTime;
 
     HIDECURSOR; //Hides the cursor
-    for (int i(0); i < programVector.size()+1; i++){
-        
-        CLEAR;
-        programTime = 0; //time for the program in execution
-        
-        //Batch in immediate queue
-        GOTOXY(0,10);
-        std::cout << std::endl << "Lote en operacion: " << (i/batchSize)+1 << std::endl;
-    
-        GOTOXY(0,11);
-        std::cout << std::endl << "Procesos pendientes del lote";
-        for(int j(i+1); j%batchSize !=0 && j<programVector.size(); ++j){
-            std::cout << std::endl << "Nombre: " << programVector.at(j)->getName() << std::endl
-                << "Tiempo maximo estimado: " << programVector.at(j)->getEstimatedTime() << std::endl;
-        }
-        
-        //Batches done
-        if(i){
-            GOTOXY(40,0);
-            std::cout << "Lotes procesados";
-        }
-        for(int j(0); j<i; j++){
-            //Batch done tag appears at the beggining
-            if(j%batchSize==0){
-                GOTOXY(40,((j-1)*4)+7);
-                std::cout << "Lote #" << (j/batchSize)+1;
-            }
-            GOTOXY(40, (j*4)+4);
-            std::cout << "ID: " << programVector[j]->getID();
-            GOTOXY(40, (j*4)+5);
-            std::cout << "Operacion: " << programVector[j]->getOperation();
-            GOTOXY(40, (j*4)+6);
-            std::cout <<"Resultado: " << programVector[j]->getResult();
 
-            //Batch done separation appears at the end of the batch
-            if (j%batchSize==4){
-                GOTOXY(40,(j*4)+7);
-                std::cout << ".-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.";
-            }
-        }
-
-        //Program in execution
-        if(i<programVector.size()){
-            for(int j(programVector[i]->getEstimatedTime()); j>0; --j){
-                GOTOXY(0,0);
-                std::cout << "Programa en ejecucion" << std::endl
-                    << "Nombre Programador: " << programVector[i]->getName() << std::endl
-                    << "Operacion: " << programVector[i]->getOperation() << std::endl
-                    << "Tiempo estimado de operacion: " << programVector[i]->getEstimatedTime() << std::endl
-                    << "Numero de programa: " << i + 1 << std::endl
-                    << "Tiempo transcurrido: " << programTime << std::endl
-                    << "Tiempo restante de ejecucion: ";
-                    if(j<10) 
-                        std::cout << "0";
-                    std::cout << j;
-                    std::cout << std::endl << "Tiempo global: " << totalTime;
-                
-                SLEEP(1000); // pause (in miliseconds)
-                programTime++;
-                totalTime++;
-            }
-        }
-    }
-    
     SHOWCURSOR; //shows the cursor back
 }

@@ -7,11 +7,14 @@ class batchfile
 {
     public:
         batchfile(){totalTime=1;}
-        void programEntry(std::vector<program*> &programVector);
-        void programProccessing(std::vector<program *> &programVector);
+        void programEntry();
+        void programProccessing();
 
     private:
         int totalTime, batchSize = 5;
+        std::vector<std::vector<program *>> programMatrix;
+        std::vector<program *> ongoingBatch;
+        std::vector<std::vector<program *>> doneProgramMatrix;
 };
 
 #endif
