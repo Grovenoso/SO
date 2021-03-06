@@ -137,10 +137,92 @@ void batchfile::programEntry()
 
 void batchfile::programProccessing()
 {
-    std::vector<program *> auxVector;
-    int programTime;
+    std::vector <program*> doneAuxVector;
+    int programTime, programNumber=0, inBatchProgramNumber;
 
     HIDECURSOR; //Hides the cursor
+    for(int i(0); i<programMatrix.size(); ++i){
+        
+        ongoingBatch = programMatrix[i];
+        inBatchProgramNumber = 0;
+        
+        for(int j(0); j<ongoingBatch.size(); ++j){
+            CLEAR;
+            programTime=0; //execution time for the current program
 
+            //Rest of the batch in immediate queue
+            GOTOXY(0,10);
+            std::cout << "Lote en operacion: " << i+1;
+            
+            GOTOXY(0,12);
+            std::cout << "Procesos pendientes del lote" << std::endl;
+            for(int k(inBatchProgramNumber+1); k<ongoingBatch.size(); ++k){
+                std::cout << "Nombre: " << ongoingBatch[k]->getName() << std::endl
+                << "Tiempo estimado: " << ongoingBatch[k]->getEstimatedTime() << std::endl;
+            }
+            
+            //Number of batches in queue
+            std::cout << std::endl << "Lotes pendientes: " << programMatrix.size()-(i+1);
+
+            //Batches done
+            if(programNumber){
+                GOTOXY(40, 0);
+                std::cout << "Lotes procesados";
+            }
+            for(int k(0); k<doneProgramMatrix.size(); k++){
+                doneAuxVector = doneProgramMatrix[k];
+                
+                for(int l(0); l<doneAuxVector.size(); ++l){
+
+                    if(l%batchSize==0){
+                        GOTOXY(40,(l*4)+2)
+                        std::cout << "Lote # " << (l/batchSize)+1 << "  ";
+                    }
+                
+                    GOTOXY(40,(l*4)+3)
+                    std::cout << "ID: " << doneAuxVector[l]->getID();
+                    GOTOXY(40,(l*4)+4)
+                    std::cout << "Operacion: " << doneAuxVector[l]->getOperation();
+                    GOTOXY(40, (l*4)+5)
+                    std::cout << "Resultado: " << doneAuxVector[l]->getResult();
+                
+                    if(l%batchSize==4){
+                        GOTOXY(40,((l+1)*4)+2);
+                        std::cout << ".-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.";
+                    }
+                }
+                
+            }
+
+
+            //Program in execution
+            for(int k(ongoingBatch[j]->getEstimatedTime()); k>0; --k){
+                GOTOXY(0,0);
+                std::cout << "Programa en ejecución" << std::endl
+                << "Nombre del Programador: " << ongoingBatch[j]->getName() << std::endl
+                << "Operacion: " << ongoingBatch[j]->getOperation() << std::endl
+                << "Tiempo estimado de operacion: " << ongoingBatch[j]->getEstimatedTime() << std::endl
+                << "Numero de programa: " << programNumber+1 << std::endl
+                << "Tiempo transcurrido: " << programTime << std::endl
+                << "Tiempo restante de ejecucion: ";
+                if(k<10)
+                    std::cout << "0";
+                std::cout << k;
+                std::cout << std::endl << "Tiempo global: " << totalTime;
+
+                SLEEP(1000); //pause (in miliseconds)
+                programTime++;
+                totalTime++;
+            }
+            programNumber++;
+            inBatchProgramNumber++;
+            
+            doneAuxVector.push_back(ongoingBatch[j]);
+            if(!doneProgramMatrix.empty())
+                doneProgramMatrix.erase(doneProgramMatrix.begin()+i);
+            doneProgramMatrix.push_back(doneAuxVector);
+        }
+        doneAuxVector.clear();
+    }
     SHOWCURSOR; //shows the cursor back
 }
