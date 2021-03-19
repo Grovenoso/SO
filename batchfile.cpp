@@ -226,3 +226,13 @@ void batchfile::programProccessing()
     }
     SHOWCURSOR; //shows the cursor back
 }
+
+void batchfile::createProgramEntry()
+{
+
+}
+
+void batchfile::programProccessingMultiprogramation()
+{
+    
+}

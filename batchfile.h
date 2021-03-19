@@ -8,7 +8,10 @@ class batchfile
     public:
         batchfile(){totalTime=1;}
         void programEntry();
+        void createProgramEntry();
+
         void programProccessing();
+        void programProccessingMultiprogramation();
 
     private:
         int totalTime, batchSize = 5;
