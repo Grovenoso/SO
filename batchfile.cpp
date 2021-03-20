@@ -342,7 +342,8 @@ void batchfile::programProccessingMultiprogramation()
             for (int k(inBatchProgramNumber + 1); k < ongoingBatch.size(); ++k)
             {
                 std::cout << "ID: " << ongoingBatch[k]->getID() << std::endl
-                          << "Tiempo estimado: " << ongoingBatch[k]->getEstimatedTime() << std::endl;
+                          << "Tiempo estimado: " << ongoingBatch[k]->getEstimatedTime() << std::endl
+                          << "Tiempo transcurrido: " << ongoingBatch[k]->getTimeAlreadyDone() << std::endl;
             }
 
             //Number of batches in queue

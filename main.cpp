@@ -7,20 +7,11 @@ int main()
     /*
     program1.programEntry();
     program1.programProccessing();
-    
-    
-    while (true){
-        if(kbhit()){
-            if (getch() == 'g'){
-                std::cout << "You pressed G" << std::endl;
-            }
-        }
-    }
     */
     
     program1.createProgramEntry();
     program1.programProccessingMultiprogramation();
-    getchar();
-    
+    CLEAR;
+    std::cout << "HASTA LUEGO!";
     return 0;
 }
