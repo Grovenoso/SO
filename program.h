@@ -15,13 +15,14 @@
 #define SHOWCURSOR printf("\e[?25h");
 
 #include <iostream>
-#include <stdio.h>
+#include <cstdio>
 #include <chrono>
 #include <thread>
 #include <string>
 #include <vector>
 #include <ctime>
 #include <string>
+#include <curses.h>
 
 class program
 {

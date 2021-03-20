@@ -18,6 +18,7 @@ class batchfile
         std::vector<std::vector<program *>> programMatrix;
         std::vector<program *> ongoingBatch;
         std::vector<std::vector<program *>> doneProgramMatrix;
+
 };
 
 #endif

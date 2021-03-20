@@ -316,17 +316,15 @@ void batchfile::createProgramEntry()
 
 void batchfile::programProccessingMultiprogramation()
 {
+    /*
     program *temporalProgram;
-    std::vector<program *> batchVector;
     
     for(int i(0); i<programMatrix.size(); ++i){
-        batchVector = programMatrix.at(i);
-        for(int j(0); j<batchVector.size(); ++j){
-            temporalProgram = batchVector.at(j);
-            std::cout << "ETA: " << temporalProgram -> getEstimatedTime() << std::endl
-                << "ID: " << temporalProgram -> getID() << std::endl
-                << "Operacion: " << temporalProgram -> getOperation() << std::endl
-                << "Result: " << temporalProgram -> getResult() << std::endl;
+        ongoingBatch = programMatrix.at(i);
+
+        for(int j(0); j<ongoingBatch.size(); ++j){
+
         }
     }
+    */
 }
