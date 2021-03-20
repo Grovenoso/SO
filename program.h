@@ -22,26 +22,30 @@
 #include <vector>
 #include <ctime>
 #include <string>
-#include <curses.h>
+#include <conio.h>
 
 class program
 {
     public:
+        program() {time_already_done=0;}
+        
         void setName(std::string data) {name = data;};
         void setOperation(std::string data) {operation = data;};
         void setID(std::string data) {ID = data;};
         void setEstimatedTime(int data) {estimatedTime = data;};
-        void setResult(int data) {result = data;};
+        void setResult(std::string data) {result = data;};
+        void setTimeAlreadyDone(int data) {time_already_done = data;};
 
         std::string getName() {return name;};
         std::string getOperation() {return operation;};
         std::string getID() {return ID;};
         int getEstimatedTime() {return estimatedTime;};
-        int getResult() {return result;};
+        std::string getResult() {return result;};
+        int getTimeAlreadyDone() {return time_already_done;};
 
     private:
-        std::string name, operation, ID;
-        int num1, num2, estimatedTime, result;
+        std::string name, operation, ID, result;
+        int num1, num2, estimatedTime, time_already_done;
 };
 
 #endif
