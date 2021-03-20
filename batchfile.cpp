@@ -229,10 +229,104 @@ void batchfile::programProccessing()
 
 void batchfile::createProgramEntry()
 {
+    //Number of programs that'll be simulated
+    int programNumber;
 
+    int number1, number2, kindOfOperation,result;
+
+    std::string operation;
+    
+    //temporal program and vector for the capture
+    program *temporalProgram;
+    std::vector<program *> batchVector;
+
+    //We ask the user the number of programs to be simulated
+    std::cout << "Ingrese el numero de programas a procesar: ";
+    std::cin >> programNumber;
+
+
+    for(int i(0); i < programNumber; ++i){
+        
+        temporalProgram = new program();
+        
+        //ETA will be between 6 & 15
+        temporalProgram->setEstimatedTime((rand()%9)+6);
+        //ID will be the index
+        temporalProgram->setID(std::to_string(i+1));
+
+        do{
+            //empties the operation string in case it resulted in a division by zero
+            operation = "";
+            
+            //the operation will be random
+            number1 = rand()%1000;
+            number2 = rand()%1000;
+            
+            //the kind of operation can be any of the basics
+            kindOfOperation = rand()%5;
+            operation = std::to_string(number1);
+            
+            switch(kindOfOperation){
+                case 0:{
+                    operation += "+";
+                    result = number1 + number2;
+                    break;
+                }
+                case 1:{
+                    operation += "-";
+                    result = number1 - number2;
+                    break;
+                }
+                case 2:{
+                    operation += "*";
+                    result = number1 * number2;
+                    break;
+                }
+                case 3:{
+                    operation += "/";
+                    if(number2 != 0)
+                        result = number1 / number2;
+                    break;
+                }
+                case 4:{
+                    operation += "%";
+                    if (number2 != 0)
+                        result = number1 % number2;
+                    break;
+                }
+            }
+
+            operation += std::to_string(number2);
+
+            //set the data
+            temporalProgram->setOperation(operation);
+            temporalProgram->setResult(result);
+        } while (number2 == 0 && (kindOfOperation == 3 || kindOfOperation == 4));
+
+        batchVector.push_back(temporalProgram);
+        if (batchVector.size() == batchSize){
+            programMatrix.push_back(batchVector);
+            batchVector.clear();
+        }
+    }
+    
+    if(batchVector.size() > 0)
+        programMatrix.push_back(batchVector);
 }
 
 void batchfile::programProccessingMultiprogramation()
 {
+    program *temporalProgram;
+    std::vector<program *> batchVector;
     
+    for(int i(0); i<programMatrix.size(); ++i){
+        batchVector = programMatrix.at(i);
+        for(int j(0); j<batchVector.size(); ++j){
+            temporalProgram = batchVector.at(j);
+            std::cout << "ETA: " << temporalProgram -> getEstimatedTime() << std::endl
+                << "ID: " << temporalProgram -> getID() << std::endl
+                << "Operacion: " << temporalProgram -> getOperation() << std::endl
+                << "Result: " << temporalProgram -> getResult() << std::endl;
+        }
+    }
 }
