@@ -3,7 +3,7 @@
 int main()
 {
     batchfile program1;
-    
+    CLEAR;
     //program1.programEntry();
     //program1.programProccessing();
     
