@@ -12,6 +12,5 @@ int main()
     
     CLEAR;   
     std::cout << "HASTA LUEGO!";
-    
     return 0;
 }
