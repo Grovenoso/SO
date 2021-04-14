@@ -6,7 +6,7 @@
 class processing
 {
     public:
-        processing(){totalTime=1;}
+        processing(){globalTime=0;}
         
         void createProgramEntry();
 
@@ -20,10 +20,22 @@ class processing
         void finishedProgram();
 
     private:
-        short totalTime, batchSize = 5;
+        short batchSize = 5;
+        
+        //control variables
+        short numberOfPrograms;
+            //indexes
+        short ongoingProgram, programNumber, inBatchProgramNumber, ongoingProgramTime, globalTime;
+
+            //program vectors
         std::vector<std::vector<program *>> programMatrix;
-        std::vector<program *> ongoingBatch;
-        std::vector<std::vector<program *>> doneProgramMatrix;
+        std::vector<program *> ongoingBatchVector;
+        std::vector<program *> doneProgramVector;
+        std::vector<program *> blockedProgramsVector;
+
+            //interruption (program goes to blocked)
+        bool interruption;
+
 
 };
 

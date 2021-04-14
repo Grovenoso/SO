@@ -3,7 +3,7 @@
 void processing::createProgramEntry()
 {
     //Number of programs that'll be simulated
-    short programNumber;
+    short numberOfPrograms;
 
     short number1, number2, kindOfOperation,result;
 
@@ -15,10 +15,10 @@ void processing::createProgramEntry()
 
     //We ask the user the number of programs to be simulated
     std::cout << "Ingrese el numero de programas a procesar: ";
-    std::cin >> programNumber;
+    std::cin >> numberOfPrograms;
 
 
-    for(short i(0); i < programNumber; ++i){
+    for(short i(0); i < numberOfPrograms; ++i){
         
         temporalProgram = new program();
         
@@ -89,96 +89,73 @@ void processing::createProgramEntry()
 
 void processing::displayProccessing()
 {
-    std::vector<program *> doneAuxVector;
     program* aux;
     
-    bool shorterruption;
-    short programTime, programNumber = 0, inBatchProgramNumber;
+    bool interruption;
+    short ongoingProgramTime, programNumber = 0, inBatchProgramNumber;
 
     HIDECURSOR; //Hides the cursor
     for (short i(0); i < programMatrix.size(); ++i)
     {
-        ongoingBatch = programMatrix[i];
+        ongoingBatchVector = programMatrix[i];
         inBatchProgramNumber = 0;
 
-        for (short j(0); j < ongoingBatch.size(); ++j)
+        for (short j(0); j < ongoingBatchVector.size(); ++j)
         {
             CLEAR;
-            programTime = ongoingBatch[j]->getTimeDone(); //execution time for the current program
+            ongoingProgramTime = ongoingBatchVector[j]->getTimeDone(); //execution time for the current program
 
             GOTOXY(0, 0);
             std::cout << "Procesos listos" << std::endl;
-            for (short k(inBatchProgramNumber + 1); k < ongoingBatch.size(); ++k)
+            for (short k(inBatchProgramNumber + 1); k < ongoingBatchVector.size(); ++k)
             {
-                std::cout << std::endl << "ID: " << ongoingBatch[k]->getID() 
-                          << std::endl << "Tiempo estimado: " << ongoingBatch[k]->getETA() 
-                          << std::endl << "Tiempo transcurrido: " << ongoingBatch[k]->getTimeDone() 
+                std::cout << std::endl << "ID: " << ongoingBatchVector[k]->getID() 
+                          << std::endl << "Tiempo estimado: " << ongoingBatchVector[k]->getETA() 
+                          << std::endl << "Tiempo transcurrido: " << ongoingBatchVector[k]->getTimeDone() 
                           << std::endl;
             }
-
-            //Number of batches in queue
-            std::cout << std::endl
-                      << "Lotes pendientes: " << programMatrix.size() - (i + 1);
 
             //Batches done
             if (programNumber)
             {
                 GOTOXY(80, 0);
-                std::cout << "Lotes procesados";
+                std::cout << "Procesos terminados";
             }
-            for (short k(0); k < doneProgramMatrix.size(); k++)
+            for (short k(0); k < doneProgramVector.size(); k++)
             {
-                doneAuxVector = doneProgramMatrix[k];
-
-                for (short l(0); l < doneAuxVector.size(); ++l)
-                {
-
-                    if (l % batchSize == 0)
-                    {
-                        GOTOXY(80, (l * 4) + 2)
-                        std::cout << "Lote # " << (l / batchSize) + 1 << "  ";
-                    }
-
-                    GOTOXY(80, (l * 4) + 3)
-                    std::cout << "ID: " << doneAuxVector[l]->getID();
-                    GOTOXY(80, (l * 4) + 4)
-                    std::cout << "Operacion: " << doneAuxVector[l]->getOperation();
-                    GOTOXY(80, (l * 4) + 5)
-                    std::cout << "Resultado: " << doneAuxVector[l]->getResult();
-
-                    if (l % batchSize == 4)
-                    {
-                        GOTOXY(80, ((l + 1) * 4) + 2);
-                        std::cout << ".-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.";
-                    }
-                }
+                    GOTOXY(80, (k * 4) + 3)
+                    std::cout << "ID: " << doneProgramVector[k]->getID();
+                    GOTOXY(80, (k * 4) + 4)
+                    std::cout << "Operacion: " << doneProgramVector[k]->getOperation();
+                    GOTOXY(80, (k * 4) + 5)
+                    std::cout << "Resultado: " << doneProgramVector[k]->getResult();
             }
 
             //Program in execution
-            for (short k((ongoingBatch[j]->getETA()-programTime)); k > 0; --k)
+            for (short k((ongoingBatchVector[j]->getETA()-ongoingProgramTime)); k > 0; --k)
             {
-                shorterruption = false;
+                interruption = false;
                 GOTOXY(40, 0);
                 std::cout << "Programa en ejecucion";
                 GOTOXY(40, 2);
-                std::cout << "Operacion: " << ongoingBatch[j]->getOperation();
+                std::cout << "Operacion: " << ongoingBatchVector[j]->getOperation();
                 GOTOXY(40, 3);
-                std::cout << "Tiempo estimado de operacion: " << ongoingBatch[j]->getETA();
+                std::cout << "Tiempo estimado de operacion: " << ongoingBatchVector[j]->getETA();
                 GOTOXY(40, 4);
                 std::cout << "Numero de programa: " << programNumber + 1;
                 GOTOXY(40, 5);
-                std::cout << "Tiempo transcurrido: " << programTime;
+                std::cout << "Tiempo transcurrido: " << ongoingProgramTime;
                 GOTOXY(40, 6);
                 std::cout << "Tiempo restante de ejecucion: ";
                 if (k < 10)
                     std::cout << "0";
                 std::cout << k;
                 GOTOXY(40, 8);
-                std::cout << "Tiempo global: " << totalTime;
+                std::cout << "Tiempo global: " << globalTime;
 
                 SLEEP(600); //pause (in miliseconds)
-                programTime++;
-                totalTime++;
+                ongoingProgramTime++;
+                globalTime++;
 
                 if(kbhit()){
                     switch(getch()){
@@ -193,15 +170,15 @@ void processing::displayProccessing()
                         
                         case 'e':
                             k=0;
-                            ongoingBatch[j]->setResult("ERROR");
+                            ongoingBatchVector[j]->setResult("ERROR");
                             break;                        
 
                         case 'i':
                             k=0;
-                            ongoingBatch[j]->setTimeDone(programTime);
-                            aux = ongoingBatch[j];
-                            ongoingBatch.push_back(aux);
-                            shorterruption = true;
+                            ongoingBatchVector[j]->setTimeDone(ongoingProgramTime);
+                            aux = ongoingBatchVector[j];
+                            ongoingBatchVector.push_back(aux);
+                            interruption = true;
                             break;
                     }
                 }
@@ -210,22 +187,25 @@ void processing::displayProccessing()
             programNumber++;
             inBatchProgramNumber++;
 
-            if(!shorterruption)
-                doneAuxVector.push_back(ongoingBatch[j]);
-            
+            if(!interruption)
+                doneProgramVector.push_back(ongoingBatchVector[j]);
+            /*
             if (!doneProgramMatrix.empty())
                 doneProgramMatrix.erase(doneProgramMatrix.begin() + i);
             doneProgramMatrix.push_back(doneAuxVector);
+            */
         }
-        doneAuxVector.clear();
+        //doneProgramVector.clear();
     }
     SHOWCURSOR; //shows the cursor back
 }
 
 void processing::headTitle()
 {
+    GOTOXY(0,0);
+    std::cout << "Procesos nuevos: " << 
     /*
-    procesos listos
+    procesos nuevos
     estado de ejecucion
     contador global
     procesos nuevos (anteriormente lotes pendientes [numero de procesos, no lotes])

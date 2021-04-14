@@ -48,7 +48,7 @@ class program
         short num1, num2;
         
         //All times
-        short ETA;
+        short ETA, blockedTime;
         //Calculated times
         short arrivalTime, timeDone, returnTime, responseTime, onWaitTime, onServiceTime;
 };
