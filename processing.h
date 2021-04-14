@@ -7,11 +7,17 @@ class processing
 {
     public:
         processing(){totalTime=1;}
-        void programEntry();
+        
         void createProgramEntry();
 
-        void programProccessing();
-        void programProccessingMultiprogramation();
+        void displayProccessing();
+        void headTitle();
+        void onQueuePrograms();
+        void onProcessingPrograms();
+        void blockedProgramsQueue();
+        void donePrograms();
+
+        void finishedProgram();
 
     private:
         short totalTime, batchSize = 5;

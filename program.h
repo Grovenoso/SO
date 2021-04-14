@@ -27,25 +27,30 @@
 class program
 {
     public:
-        program() {time_already_done=0;}
+        program() {timeDone=0;}
         
         void setName(std::string data) {name = data;};
         void setOperation(std::string data) {operation = data;};
         void setID(std::string data) {ID = data;};
         void setResult(std::string data) {result = data;};
-        void setEstimatedTime(short data) {estimatedTime = data;};
-        void setTimeAlreadyDone(short data) {time_already_done = data;};
+        void setETA(short data) {ETA = data;};
+        void setTimeDone(short data) {timeDone = data;};
 
         std::string getName() {return name;};
         std::string getOperation() {return operation;};
         std::string getID() {return ID;};
         std::string getResult() {return result;};
-        short getEstimatedTime() {return estimatedTime;};
-        short getTimeAlreadyDone() {return time_already_done;};
+        short getETA() {return ETA;};
+        short getTimeDone() {return timeDone;};
 
     private:
         std::string name, operation, ID, result;
-        short num1, num2, estimatedTime, time_already_done;
+        short num1, num2;
+        
+        //All times
+        short ETA;
+        //Calculated times
+        short arrivalTime, timeDone, returnTime, responseTime, onWaitTime, onServiceTime;
 };
 
 #endif

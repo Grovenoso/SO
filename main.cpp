@@ -2,13 +2,11 @@
 
 int main()
 {
-    processing program1;
+    processing program;
     CLEAR;
-    //program1.programEntry();
-    //program1.programProccessing();
     
-    program1.createProgramEntry();
-    program1.programProccessingMultiprogramation();
+    program.createProgramEntry();
+    program.displayProccessing();
     
     CLEAR;   
     std::cout << "HASTA LUEGO!";

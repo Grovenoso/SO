@@ -1,232 +1,5 @@
 #include "processing.h"
 
-void processing::programEntry()
-{
-    program *temporalProgram;
-    std::vector<program *> batchVector;
-    std::string data, tempData1, tempData2;
-    
-    bool error = true;
-    short num1 = 0, num2 = 0, option;
-    char operation;
-
-    do{
-        CLEAR;
-        std::cout << "Bienvenido, si desea un nuevo ingreso ingrese cualquier numero"
-                    <<", de lo contrario, ingrese 0: ";
-        std::cin >> option;
-        std::cin.ignore();
-
-        if (option){
-            temporalProgram = new program();
-
-            std::cout << "Ingrese el nombre del programador: ";
-            getline(std::cin, data);
-            temporalProgram->setName(data);
-
-            do{
-                std::cout << "Ingrese la operacion que desea realizar: ";
-                getline(std::cin, data);
-
-                //separacion de la operacion a terminos numericos
-                if (data.find('/') < data.size()){
-                    tempData1 = data.substr(0, data.find('/'));
-                    tempData2 = data.substr(data.find('/') + 1, data.length());
-                }
-
-                else if (data.find('%') < data.size()){
-                    tempData1 = data.substr(0, data.find('%'));
-                    tempData2 = data.substr(data.find('%') + 1, data.length());
-                }
-
-                else if (data.find('+') < data.size()){
-                    tempData1 = data.substr(0, data.find('+'));
-                    tempData2 = data.substr(data.find('+') + 1, data.length());
-                }
-
-                else if (data.find('-') < data.size()){
-                    tempData1 = data.substr(0, data.find('-'));
-                    tempData2 = data.substr(data.find('-') + 1, data.length());
-                }
-
-                else if (data.find('*') < data.size()){
-                    tempData1 = data.substr(0, data.find('*'));
-                    tempData2 = data.substr(data.find('*') + 1, data.length());
-                }
-
-                //se lleva las strings a enteros simples para realizar la operacion
-                num1 = stoi(tempData1);
-                num2 = stoi(tempData2);
-
-                //si la operacion es una division o residuo y el segundo (el divisor) es 0 se manda un error
-                if (((data.find('/') < data.size()) || (data.find('%') < data.size())) && !num2){
-                    std::cout << std::endl << "La division entre 0 es matematicamente imposible, shortente de nuevo"
-                        << std::endl << "Presione enter para continuar";
-                    error = true;
-                    getchar();
-                }
-
-                //se realiza la operacion y se guardan los datos
-                else{
-                    temporalProgram->setOperation(data);
-
-                    if (data.find('/') < data.size())
-                        temporalProgram->setResult(std::to_string(num1 / num2));
-                    else if (data.find('%') < data.size())
-                        temporalProgram->setResult(std::to_string(num1 % num2));
-                    else if (data.find('+') < data.size())
-                        temporalProgram->setResult(std::to_string(num1 + num2));
-                    else if (data.find('-') < data.size())
-                        temporalProgram->setResult(std::to_string(num1 - num2));
-                    else if (data.find('*') < data.size())
-                        temporalProgram->setResult(std::to_string(num1 * num2));
-
-                    error = false;
-                }
-            } while (error);
-
-            do{
-                std::cout << "Ingrese el tiempo maximo estimado del programa: ";
-                std::cin >> num1;
-
-                //el tiempo maximo estimado debe ser mayor a 0
-                if (num1 > 0)
-                    temporalProgram->setEstimatedTime(num1);
-                
-                else{
-                    std::cout << std::endl
-                        << "El tiempo maximo estimado del programa debe ser mayor a 0, shortente de nuevo";
-                    getchar();
-                }
-            } while (num1 <= 0);
-
-            std::cin.ignore();
-            do{
-                error = false;
-                std::cout << "Ingrese el ID del programa: ";
-                getline(std::cin, data);
-
-                for (short i(0); i < batchVector.size(); i++){
-                    if (data == batchVector[i]->getID()){
-                        std::cout << std::endl
-                                << "El ID ya es existente, shortente de nuevo";
-                        getchar();
-                        error = true;
-                        break;
-                    }
-                }
-
-                if (!error){
-                    temporalProgram->setID(data);
-                }
-
-            } while (error);
-
-            //al terminar la captura de datos del programa, se añade al vector
-            batchVector.push_back(temporalProgram);
-            if(batchVector.size() == batchSize){
-                programMatrix.push_back(batchVector);
-                batchVector.clear();
-            }
-        }
-    } while (option);
-    if(batchVector.size() > 0){
-        programMatrix.push_back(batchVector);
-    }
-}
-
-void processing::programProccessing()
-{
-    std::vector <program*> doneAuxVector;
-    short programTime, programNumber=0, inBatchProgramNumber;
-
-    HIDECURSOR; //Hides the cursor
-    for(short i(0); i<programMatrix.size(); ++i){
-        
-        ongoingBatch = programMatrix[i];
-        inBatchProgramNumber = 0;
-        
-        for(short j(0); j<ongoingBatch.size(); ++j){
-            CLEAR;
-            programTime=0; //execution time for the current program
-
-            //Rest of the batch in immediate queue
-            GOTOXY(0,10);
-            std::cout << "Lote en operacion: " << i+1;
-            
-            GOTOXY(0,12);
-            std::cout << "Procesos pendientes del lote" << std::endl;
-            for(short k(inBatchProgramNumber+1); k<ongoingBatch.size(); ++k){
-                std::cout << "Nombre: " << ongoingBatch[k]->getName() << std::endl
-                << "Tiempo estimado: " << ongoingBatch[k]->getEstimatedTime() << std::endl;
-            }
-            
-            //Number of batches in queue
-            std::cout << std::endl << "Lotes pendientes: " << programMatrix.size()-(i+1);
-
-            //Batches done
-            if(programNumber){
-                GOTOXY(40, 0);
-                std::cout << "Lotes procesados";
-            }
-            for(short k(0); k<doneProgramMatrix.size(); k++){
-                doneAuxVector = doneProgramMatrix[k];
-                
-                for(short l(0); l<doneAuxVector.size(); ++l){
-
-                    if(l%batchSize==0){
-                        GOTOXY(40,(l*4)+2)
-                        std::cout << "Lote # " << (l/batchSize)+1 << "  ";
-                    }
-                
-                    GOTOXY(40,(l*4)+3)
-                    std::cout << "ID: " << doneAuxVector[l]->getID();
-                    GOTOXY(40,(l*4)+4)
-                    std::cout << "Operacion: " << doneAuxVector[l]->getOperation();
-                    GOTOXY(40, (l*4)+5)
-                    std::cout << "Resultado: " << doneAuxVector[l]->getResult();
-                
-                    if(l%batchSize==4){
-                        GOTOXY(40,((l+1)*4)+2);
-                        std::cout << ".-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.";
-                    }
-                }
-                
-            }
-
-
-            //Program in execution
-            for(short k(ongoingBatch[j]->getEstimatedTime()); k>0; --k){
-                GOTOXY(0,0);
-                std::cout << "Programa en ejecución" << std::endl
-                << "Nombre del Programador: " << ongoingBatch[j]->getName() << std::endl
-                << "Operacion: " << ongoingBatch[j]->getOperation() << std::endl
-                << "Tiempo estimado de operacion: " << ongoingBatch[j]->getEstimatedTime() << std::endl
-                << "Numero de programa: " << programNumber+1 << std::endl
-                << "Tiempo transcurrido: " << programTime << std::endl
-                << "Tiempo restante de ejecucion: ";
-                if(k<10)
-                    std::cout << "0";
-                std::cout << k;
-                std::cout << std::endl << "Tiempo global: " << totalTime;
-
-                SLEEP(1000); //pause (in miliseconds)
-                programTime++;
-                totalTime++;
-            }
-            programNumber++;
-            inBatchProgramNumber++;
-            
-            doneAuxVector.push_back(ongoingBatch[j]);
-            if(!doneProgramMatrix.empty())
-                doneProgramMatrix.erase(doneProgramMatrix.begin()+i);
-            doneProgramMatrix.push_back(doneAuxVector);
-        }
-        doneAuxVector.clear();
-    }
-    SHOWCURSOR; //shows the cursor back
-}
-
 void processing::createProgramEntry()
 {
     //Number of programs that'll be simulated
@@ -250,7 +23,7 @@ void processing::createProgramEntry()
         temporalProgram = new program();
         
         //ETA will be between 6 & 15
-        temporalProgram->setEstimatedTime((rand()%9)+6);
+        temporalProgram->setETA((rand()%10)+6);
         //ID will be the index
         temporalProgram->setID(std::to_string(i+1));
 
@@ -258,42 +31,42 @@ void processing::createProgramEntry()
             //empties the operation string in case it resulted in a division by zero
             operation = "";
             
-            //the operation will be random
-            number1 = rand()%1000;
-            number2 = rand()%1000;
+            //the operation will be semirandom
+            number1 = rand()%100;
+            number2 = rand()%100;
             
             //the kind of operation can be any of the basics
             kindOfOperation = rand()%5;
             operation = std::to_string(number1);
             
             switch(kindOfOperation){
-                case 0:{
+                case 0:
                     operation += "+";
                     result = number1 + number2;
                     break;
-                }
-                case 1:{
+                
+                case 1:
                     operation += "-";
                     result = number1 - number2;
                     break;
-                }
-                case 2:{
+                
+                case 2:
                     operation += "*";
                     result = number1 * number2;
                     break;
-                }
-                case 3:{
+                
+                case 3:
                     operation += "/";
                     if(number2 != 0)
                         result = number1 / number2;
                     break;
-                }
-                case 4:{
+                
+                case 4:
                     operation += "%";
                     if (number2 != 0)
                         result = number1 % number2;
                     break;
-                }
+                
             }
 
             operation += std::to_string(number2);
@@ -314,7 +87,7 @@ void processing::createProgramEntry()
         programMatrix.push_back(batchVector);
 }
 
-void processing::programProccessingMultiprogramation()
+void processing::displayProccessing()
 {
     std::vector<program *> doneAuxVector;
     program* aux;
@@ -331,19 +104,16 @@ void processing::programProccessingMultiprogramation()
         for (short j(0); j < ongoingBatch.size(); ++j)
         {
             CLEAR;
-            programTime = ongoingBatch[j]->getTimeAlreadyDone(); //execution time for the current program
+            programTime = ongoingBatch[j]->getTimeDone(); //execution time for the current program
 
-            //Rest of the batch in immediate queue
             GOTOXY(0, 0);
-            std::cout << "Lote en operacion: " << i + 1;
-
-            GOTOXY(0, 1);
-            std::cout << "Procesos pendientes del lote" << std::endl;
+            std::cout << "Procesos listos" << std::endl;
             for (short k(inBatchProgramNumber + 1); k < ongoingBatch.size(); ++k)
             {
-                std::cout << "ID: " << ongoingBatch[k]->getID() << std::endl
-                          << "Tiempo estimado: " << ongoingBatch[k]->getEstimatedTime() << std::endl
-                          << "Tiempo transcurrido: " << ongoingBatch[k]->getTimeAlreadyDone() << std::endl;
+                std::cout << std::endl << "ID: " << ongoingBatch[k]->getID() 
+                          << std::endl << "Tiempo estimado: " << ongoingBatch[k]->getETA() 
+                          << std::endl << "Tiempo transcurrido: " << ongoingBatch[k]->getTimeDone() 
+                          << std::endl;
             }
 
             //Number of batches in queue
@@ -385,7 +155,7 @@ void processing::programProccessingMultiprogramation()
             }
 
             //Program in execution
-            for (short k((ongoingBatch[j]->getEstimatedTime()-programTime)); k > 0; --k)
+            for (short k((ongoingBatch[j]->getETA()-programTime)); k > 0; --k)
             {
                 shorterruption = false;
                 GOTOXY(40, 0);
@@ -393,7 +163,7 @@ void processing::programProccessingMultiprogramation()
                 GOTOXY(40, 2);
                 std::cout << "Operacion: " << ongoingBatch[j]->getOperation();
                 GOTOXY(40, 3);
-                std::cout << "Tiempo estimado de operacion: " << ongoingBatch[j]->getEstimatedTime();
+                std::cout << "Tiempo estimado de operacion: " << ongoingBatch[j]->getETA();
                 GOTOXY(40, 4);
                 std::cout << "Numero de programa: " << programNumber + 1;
                 GOTOXY(40, 5);
@@ -403,38 +173,36 @@ void processing::programProccessingMultiprogramation()
                 if (k < 10)
                     std::cout << "0";
                 std::cout << k;
-                GOTOXY(40, 7);
+                GOTOXY(40, 8);
                 std::cout << "Tiempo global: " << totalTime;
 
-                SLEEP(1000); //pause (in miliseconds)
+                SLEEP(600); //pause (in miliseconds)
                 programTime++;
                 totalTime++;
 
                 if(kbhit()){
                     switch(getch()){
-                        case 'p':{
-                            GOTOXY(0, 15);
+                        case 'p':
+                            GOTOXY(40, 10);
                             std::cout << "PROGRAMA EN PAUSA, INGRESE 'C' PARA CONTINUAR";
 
                             while(!kbhit() && getch() != 'c'){}
-                            GOTOXY(0, 15);
+                            GOTOXY(40, 10);
                             std::cout << "                                                ";
-                            break;
-                        }
+                            break;                        
                         
-                        case 'e':{
+                        case 'e':
                             k=0;
                             ongoingBatch[j]->setResult("ERROR");
-                            break;
-                        }
+                            break;                        
 
-                        case 'i':{
+                        case 'i':
                             k=0;
-                            ongoingBatch[j]->setTimeAlreadyDone(programTime);
+                            ongoingBatch[j]->setTimeDone(programTime);
                             aux = ongoingBatch[j];
                             ongoingBatch.push_back(aux);
                             shorterruption = true;
-                        }
+                            break;
                     }
                 }
 
@@ -452,4 +220,55 @@ void processing::programProccessingMultiprogramation()
         doneAuxVector.clear();
     }
     SHOWCURSOR; //shows the cursor back
+}
+
+void processing::headTitle()
+{
+    /*
+    procesos listos
+    estado de ejecucion
+    contador global
+    procesos nuevos (anteriormente lotes pendientes [numero de procesos, no lotes])
+    */
+}
+
+void processing::onQueuePrograms()
+{
+    //lista de procesos listos (anteriormente lote en ejecución)
+    /*
+    -ID
+    -ETA
+    -Tiempo transcurrido
+    */
+}
+
+void processing::onProcessingPrograms()
+{
+    /*
+    same shit
+    */
+}
+
+void processing::blockedProgramsQueue()
+{
+    /*
+    -ID
+    -TT
+    */
+}
+
+void processing::donePrograms()
+{
+    /*
+    -ID
+    -Op
+    -Resultado
+    */
+}
+
+void processing::finishedProgram()
+{
+    /*
+    show all shit
+    */
 }
