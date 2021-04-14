@@ -1,13 +1,13 @@
-#include "batchfile.h"
+#include "processing.h"
 
-void batchfile::programEntry()
+void processing::programEntry()
 {
     program *temporalProgram;
     std::vector<program *> batchVector;
     std::string data, tempData1, tempData2;
     
     bool error = true;
-    int num1 = 0, num2 = 0, option;
+    short num1 = 0, num2 = 0, option;
     char operation;
 
     do{
@@ -60,7 +60,7 @@ void batchfile::programEntry()
 
                 //si la operacion es una division o residuo y el segundo (el divisor) es 0 se manda un error
                 if (((data.find('/') < data.size()) || (data.find('%') < data.size())) && !num2){
-                    std::cout << std::endl << "La division entre 0 es matematicamente imposible, intente de nuevo"
+                    std::cout << std::endl << "La division entre 0 es matematicamente imposible, shortente de nuevo"
                         << std::endl << "Presione enter para continuar";
                     error = true;
                     getchar();
@@ -95,7 +95,7 @@ void batchfile::programEntry()
                 
                 else{
                     std::cout << std::endl
-                        << "El tiempo maximo estimado del programa debe ser mayor a 0, intente de nuevo";
+                        << "El tiempo maximo estimado del programa debe ser mayor a 0, shortente de nuevo";
                     getchar();
                 }
             } while (num1 <= 0);
@@ -106,10 +106,10 @@ void batchfile::programEntry()
                 std::cout << "Ingrese el ID del programa: ";
                 getline(std::cin, data);
 
-                for (int i(0); i < batchVector.size(); i++){
+                for (short i(0); i < batchVector.size(); i++){
                     if (data == batchVector[i]->getID()){
                         std::cout << std::endl
-                                << "El ID ya es existente, intente de nuevo";
+                                << "El ID ya es existente, shortente de nuevo";
                         getchar();
                         error = true;
                         break;
@@ -135,18 +135,18 @@ void batchfile::programEntry()
     }
 }
 
-void batchfile::programProccessing()
+void processing::programProccessing()
 {
     std::vector <program*> doneAuxVector;
-    int programTime, programNumber=0, inBatchProgramNumber;
+    short programTime, programNumber=0, inBatchProgramNumber;
 
     HIDECURSOR; //Hides the cursor
-    for(int i(0); i<programMatrix.size(); ++i){
+    for(short i(0); i<programMatrix.size(); ++i){
         
         ongoingBatch = programMatrix[i];
         inBatchProgramNumber = 0;
         
-        for(int j(0); j<ongoingBatch.size(); ++j){
+        for(short j(0); j<ongoingBatch.size(); ++j){
             CLEAR;
             programTime=0; //execution time for the current program
 
@@ -156,7 +156,7 @@ void batchfile::programProccessing()
             
             GOTOXY(0,12);
             std::cout << "Procesos pendientes del lote" << std::endl;
-            for(int k(inBatchProgramNumber+1); k<ongoingBatch.size(); ++k){
+            for(short k(inBatchProgramNumber+1); k<ongoingBatch.size(); ++k){
                 std::cout << "Nombre: " << ongoingBatch[k]->getName() << std::endl
                 << "Tiempo estimado: " << ongoingBatch[k]->getEstimatedTime() << std::endl;
             }
@@ -169,10 +169,10 @@ void batchfile::programProccessing()
                 GOTOXY(40, 0);
                 std::cout << "Lotes procesados";
             }
-            for(int k(0); k<doneProgramMatrix.size(); k++){
+            for(short k(0); k<doneProgramMatrix.size(); k++){
                 doneAuxVector = doneProgramMatrix[k];
                 
-                for(int l(0); l<doneAuxVector.size(); ++l){
+                for(short l(0); l<doneAuxVector.size(); ++l){
 
                     if(l%batchSize==0){
                         GOTOXY(40,(l*4)+2)
@@ -196,7 +196,7 @@ void batchfile::programProccessing()
 
 
             //Program in execution
-            for(int k(ongoingBatch[j]->getEstimatedTime()); k>0; --k){
+            for(short k(ongoingBatch[j]->getEstimatedTime()); k>0; --k){
                 GOTOXY(0,0);
                 std::cout << "Programa en ejecución" << std::endl
                 << "Nombre del Programador: " << ongoingBatch[j]->getName() << std::endl
@@ -227,12 +227,12 @@ void batchfile::programProccessing()
     SHOWCURSOR; //shows the cursor back
 }
 
-void batchfile::createProgramEntry()
+void processing::createProgramEntry()
 {
     //Number of programs that'll be simulated
-    int programNumber;
+    short programNumber;
 
-    int number1, number2, kindOfOperation,result;
+    short number1, number2, kindOfOperation,result;
 
     std::string operation;
     
@@ -245,7 +245,7 @@ void batchfile::createProgramEntry()
     std::cin >> programNumber;
 
 
-    for(int i(0); i < programNumber; ++i){
+    for(short i(0); i < programNumber; ++i){
         
         temporalProgram = new program();
         
@@ -314,21 +314,21 @@ void batchfile::createProgramEntry()
         programMatrix.push_back(batchVector);
 }
 
-void batchfile::programProccessingMultiprogramation()
+void processing::programProccessingMultiprogramation()
 {
     std::vector<program *> doneAuxVector;
     program* aux;
     
-    bool interruption;
-    int programTime, programNumber = 0, inBatchProgramNumber;
+    bool shorterruption;
+    short programTime, programNumber = 0, inBatchProgramNumber;
 
     HIDECURSOR; //Hides the cursor
-    for (int i(0); i < programMatrix.size(); ++i)
+    for (short i(0); i < programMatrix.size(); ++i)
     {
         ongoingBatch = programMatrix[i];
         inBatchProgramNumber = 0;
 
-        for (int j(0); j < ongoingBatch.size(); ++j)
+        for (short j(0); j < ongoingBatch.size(); ++j)
         {
             CLEAR;
             programTime = ongoingBatch[j]->getTimeAlreadyDone(); //execution time for the current program
@@ -339,7 +339,7 @@ void batchfile::programProccessingMultiprogramation()
 
             GOTOXY(0, 1);
             std::cout << "Procesos pendientes del lote" << std::endl;
-            for (int k(inBatchProgramNumber + 1); k < ongoingBatch.size(); ++k)
+            for (short k(inBatchProgramNumber + 1); k < ongoingBatch.size(); ++k)
             {
                 std::cout << "ID: " << ongoingBatch[k]->getID() << std::endl
                           << "Tiempo estimado: " << ongoingBatch[k]->getEstimatedTime() << std::endl
@@ -356,11 +356,11 @@ void batchfile::programProccessingMultiprogramation()
                 GOTOXY(80, 0);
                 std::cout << "Lotes procesados";
             }
-            for (int k(0); k < doneProgramMatrix.size(); k++)
+            for (short k(0); k < doneProgramMatrix.size(); k++)
             {
                 doneAuxVector = doneProgramMatrix[k];
 
-                for (int l(0); l < doneAuxVector.size(); ++l)
+                for (short l(0); l < doneAuxVector.size(); ++l)
                 {
 
                     if (l % batchSize == 0)
@@ -385,9 +385,9 @@ void batchfile::programProccessingMultiprogramation()
             }
 
             //Program in execution
-            for (int k((ongoingBatch[j]->getEstimatedTime()-programTime)); k > 0; --k)
+            for (short k((ongoingBatch[j]->getEstimatedTime()-programTime)); k > 0; --k)
             {
-                interruption = false;
+                shorterruption = false;
                 GOTOXY(40, 0);
                 std::cout << "Programa en ejecucion";
                 GOTOXY(40, 2);
@@ -433,7 +433,7 @@ void batchfile::programProccessingMultiprogramation()
                             ongoingBatch[j]->setTimeAlreadyDone(programTime);
                             aux = ongoingBatch[j];
                             ongoingBatch.push_back(aux);
-                            interruption = true;
+                            shorterruption = true;
                         }
                     }
                 }
@@ -442,7 +442,7 @@ void batchfile::programProccessingMultiprogramation()
             programNumber++;
             inBatchProgramNumber++;
 
-            if(!interruption)
+            if(!shorterruption)
                 doneAuxVector.push_back(ongoingBatch[j]);
             
             if (!doneProgramMatrix.empty())

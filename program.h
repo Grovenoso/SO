@@ -32,20 +32,20 @@ class program
         void setName(std::string data) {name = data;};
         void setOperation(std::string data) {operation = data;};
         void setID(std::string data) {ID = data;};
-        void setEstimatedTime(int data) {estimatedTime = data;};
         void setResult(std::string data) {result = data;};
-        void setTimeAlreadyDone(int data) {time_already_done = data;};
+        void setEstimatedTime(short data) {estimatedTime = data;};
+        void setTimeAlreadyDone(short data) {time_already_done = data;};
 
         std::string getName() {return name;};
         std::string getOperation() {return operation;};
         std::string getID() {return ID;};
-        int getEstimatedTime() {return estimatedTime;};
         std::string getResult() {return result;};
-        int getTimeAlreadyDone() {return time_already_done;};
+        short getEstimatedTime() {return estimatedTime;};
+        short getTimeAlreadyDone() {return time_already_done;};
 
     private:
         std::string name, operation, ID, result;
-        int num1, num2, estimatedTime, time_already_done;
+        short num1, num2, estimatedTime, time_already_done;
 };
 
 #endif

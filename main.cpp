@@ -1,8 +1,8 @@
-#include "batchfile.h"
+#include "processing.h"
 
 int main()
 {
-    batchfile program1;
+    processing program1;
     CLEAR;
     //program1.programEntry();
     //program1.programProccessing();

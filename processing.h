@@ -1,12 +1,12 @@
-#ifndef BATCHFILE_H
-#define BATCHFILE_H
+#ifndef PROCESSING_H
+#define PROCESSING_H
 
 #include "program.h"
 
-class batchfile
+class processing
 {
     public:
-        batchfile(){totalTime=1;}
+        processing(){totalTime=1;}
         void programEntry();
         void createProgramEntry();
 
@@ -14,7 +14,7 @@ class batchfile
         void programProccessingMultiprogramation();
 
     private:
-        int totalTime, batchSize = 5;
+        short totalTime, batchSize = 5;
         std::vector<std::vector<program *>> programMatrix;
         std::vector<program *> ongoingBatch;
         std::vector<std::vector<program *>> doneProgramMatrix;
