@@ -23,9 +23,17 @@ class processing
         short batchSize = 5;
         
         //control variables
+            //number of programs that'll be created
         short numberOfPrograms;
+            
             //indexes
         short ongoingProgram, programNumber, inBatchProgramNumber, ongoingProgramTime, globalTime;
+
+        //execution state
+            //0 = ready
+            //1 = pause
+            //2 = in execution
+        short execState;
 
             //program vectors
         std::vector<std::vector<program *>> programMatrix;

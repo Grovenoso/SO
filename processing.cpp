@@ -2,9 +2,6 @@
 
 void processing::createProgramEntry()
 {
-    //Number of programs that'll be simulated
-    short numberOfPrograms;
-
     short number1, number2, kindOfOperation,result;
 
     std::string operation;
@@ -203,7 +200,10 @@ void processing::displayProccessing()
 void processing::headTitle()
 {
     GOTOXY(0,0);
-    std::cout << "Procesos nuevos: " << 
+    //new processes
+    std::cout << "Procesos nuevos: " << numberOfPrograms - programNumber + 1;
+    //execution state
+    std::cout << "Estado de ejecución: " << 
     /*
     procesos nuevos
     estado de ejecucion
