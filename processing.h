@@ -27,13 +27,16 @@ class processing
         short numberOfPrograms;
             
             //indexes
-        short ongoingProgram, programNumber, inBatchProgramNumber, ongoingProgramTime, globalTime;
+        short programNumber, inBatchProgramNumber, ongoingProgramTime, globalTime;
 
-        //execution state
-            //0 = ready
-            //1 = pause
-            //2 = in execution
-        short execState;
+            //execution state
+        enum execState{
+            READY = 0,
+            PAUSE,
+            IN_EXECUTION
+        };
+
+        short executionState;
 
             //program vectors
         std::vector<std::vector<program *>> programMatrix;

@@ -97,6 +97,8 @@ void processing::displayProccessing()
         ongoingBatchVector = programMatrix[i];
         inBatchProgramNumber = 0;
 
+        std::cout << "Programas nuevos: " << numberOfPrograms - programNumber + 1;
+
         for (short j(0); j < ongoingBatchVector.size(); ++j)
         {
             CLEAR;
@@ -107,8 +109,8 @@ void processing::displayProccessing()
             for (short k(inBatchProgramNumber + 1); k < ongoingBatchVector.size(); ++k)
             {
                 std::cout << std::endl << "ID: " << ongoingBatchVector[k]->getID() 
-                          << std::endl << "Tiempo estimado: " << ongoingBatchVector[k]->getETA() 
-                          << std::endl << "Tiempo transcurrido: " << ongoingBatchVector[k]->getTimeDone() 
+                          << std::endl << "ETA: " << ongoingBatchVector[k]->getETA() 
+                          << std::endl << "TT: " << ongoingBatchVector[k]->getTimeDone() 
                           << std::endl;
             }
 
@@ -123,9 +125,9 @@ void processing::displayProccessing()
                     GOTOXY(80, (k * 4) + 3)
                     std::cout << "ID: " << doneProgramVector[k]->getID();
                     GOTOXY(80, (k * 4) + 4)
-                    std::cout << "Operacion: " << doneProgramVector[k]->getOperation();
+                    std::cout << "OP: " << doneProgramVector[k]->getOperation();
                     GOTOXY(80, (k * 4) + 5)
-                    std::cout << "Resultado: " << doneProgramVector[k]->getResult();
+                    std::cout << "R: " << doneProgramVector[k]->getResult();
             }
 
             //Program in execution
@@ -135,15 +137,15 @@ void processing::displayProccessing()
                 GOTOXY(40, 0);
                 std::cout << "Programa en ejecucion";
                 GOTOXY(40, 2);
-                std::cout << "Operacion: " << ongoingBatchVector[j]->getOperation();
+                std::cout << "OP: " << ongoingBatchVector[j]->getOperation();
                 GOTOXY(40, 3);
-                std::cout << "Tiempo estimado de operacion: " << ongoingBatchVector[j]->getETA();
+                std::cout << "ETA: " << ongoingBatchVector[j]->getETA();
                 GOTOXY(40, 4);
-                std::cout << "Numero de programa: " << programNumber + 1;
+                std::cout << "ID: " << programNumber + 1;
                 GOTOXY(40, 5);
-                std::cout << "Tiempo transcurrido: " << ongoingProgramTime;
+                std::cout << "TT: " << ongoingProgramTime;
                 GOTOXY(40, 6);
-                std::cout << "Tiempo restante de ejecucion: ";
+                std::cout << "TRE: ";
                 if (k < 10)
                     std::cout << "0";
                 std::cout << k;
@@ -199,11 +201,6 @@ void processing::displayProccessing()
 
 void processing::headTitle()
 {
-    GOTOXY(0,0);
-    //new processes
-    std::cout << "Procesos nuevos: " << numberOfPrograms - programNumber + 1;
-    //execution state
-    std::cout << "Estado de ejecución: " << 
     /*
     procesos nuevos
     estado de ejecucion
