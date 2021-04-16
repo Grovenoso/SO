@@ -103,9 +103,21 @@ void processing::displayProccessing()
             onQueuePrograms();
             donePrograms();
             inExecutionProgram();
+            
+            //in case of an interruption the j index decreases as
+            //the vector decreased
+            if(interruption){
+                j--;
+                interruption = false;
+            }
             CLEAR;
         }
     }
+    //last program is showed on the queue 
+    headTitle();
+    onQueuePrograms();
+    donePrograms();
+    getch();
     SHOWCURSOR; //shows the cursor back
 }
 
@@ -140,19 +152,17 @@ void processing::onQueuePrograms()
                   << std::endl
                   << "ETA: " << ongoingBatchV[i]->getETA()
                   << std::endl
-                  << "TT: " << ongoingBatchV[i]->getTimeDone()
+                  << "TT: " << ongoingBatchV[i]->getServiceTime()
                   << std::endl;
     }
 }
 
 void processing::inExecutionProgram()
-{   
-    //boolean to cut the execution in case of interruption
-    bool interruption = false;
+{
     //program in execution
     inExecutionP = ongoingBatchV[inBatchProgramNumber];
     
-    for (short i(0); i < inExecutionP->getETA(); ++i){                    
+    for (short i=inExecutionP->getServiceTime(); i < inExecutionP->getETA(); ++i){        
         //printing all program data
         GOTOXY(25, 3);
         std::cout << "Programa en ejecucion";
@@ -174,23 +184,36 @@ void processing::inExecutionProgram()
         if (kbhit()){
             switch (getch()){
             case 'p':
+                //if paused the execution state and its printing is updated
                 execState = false;
                 headTitle();
+
+                //when the execution state is continued the state
+                //and its printing are updated
                 while (!kbhit() && getch() != 'c'){}
                 execState = true;
                 headTitle();
                 break;
 
             case 'e':
+                //if the e key is pressed the control index 
+                //and program result are updated
                 i = inExecutionP->getETA();
                 inExecutionP->setResult("ERROR");
                 break;
 
             case 'i':
-                i = inExecutionP->getETA();
+                //data and program is set to the blocked vector
                 inExecutionP->setBlockedTime(5);
                 blockedProgramsV.push_back(inExecutionP);
+                
+                //the program is erased from the vector that 
+                //is currently in execution
                 ongoingBatchV.erase(ongoingBatchV.begin());
+                
+                //control index is set to move to the nex program
+                //and interruption flag is activated
+                i = inExecutionP->getETA();
                 interruption = true;                
                 break;
             }
@@ -202,16 +225,16 @@ void processing::inExecutionProgram()
 
         //time increments
         globalTime++;
-        inExecutionP->setServiceTime(inExecutionP->getServiceTime() + 1);    
-
-        //if it's sent to blocked we pass onto the next program
-        if(interruption)
-            i++;
-
+        inExecutionP->setServiceTime(inExecutionP->getServiceTime() + 1);
+        
         //pause (in miliseconds)
-        SLEEP(600); 
+        SLEEP(600);
     }
-    doneProgramV.push_back(inExecutionP);
+    
+    //if it was sent to blocked we don't add it to the done vector and
+    // pass onto the next program
+    if (!interruption)
+        doneProgramV.push_back(inExecutionP);
 }
 
 void processing::blockedProgramsQueue()
@@ -223,17 +246,26 @@ void processing::blockedProgramsQueue()
         GOTOXY(25,(i*3)+12);
         std::cout << "ID: " << blockedProgramsV[i]->getID();
         GOTOXY(25,(i*3)+13);
-        std::cout << "TTB: " << blockedProgramsV[i]->getBlockedTime();
-    }
-    
-    for(short i(0); i<blockedProgramsV.size(); ++i){
-        if(!blockedProgramsV[i]->getBlockedTime()){
+        std::cout << "TRB: " << blockedProgramsV[i]->getBlockedTime();
+
+        if (!(blockedProgramsV[i]->getBlockedTime())){
             auxP = blockedProgramsV[i];
             ongoingBatchV.push_back(auxP);
-            blockedProgramsV.erase(blockedProgramsV.begin() + i);
+            blockedProgramsV.erase(blockedProgramsV.begin()+i);
+            
+            //when a program stops beign blocked
+            //the blocked programs queue the head title
+            //the ready programs queue and potentially the programs that are done
+            //should be updated, so the screen is cleared
+            CLEAR;            
+            blockedProgramsQueue();
+            headTitle();
+            onQueuePrograms();
+            donePrograms();
         }
         
-        blockedProgramsV[i]->setBlockedTime(blockedProgramsV[i]->getBlockedTime() - 1);
+        else
+            blockedProgramsV[i]->setBlockedTime(blockedProgramsV[i]->getBlockedTime() - 1);
     }
 }
 

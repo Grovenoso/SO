@@ -43,8 +43,11 @@ class processing
     private:
         //control variables
         short batchSize = 5;
-        
-            //number of programs that'll be created
+            
+            //boolean to cut the execution in case of interruption
+        bool interruption = false;
+
+        //number of programs that'll be created
         short numberOfPrograms;
             
             //number of programs actually created
