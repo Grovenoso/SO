@@ -7,7 +7,15 @@ int main()
     
     program.createProgramEntry();
     program.displayProccessing();
-    
+    /*
+    program.headTitle();
+    program.onQueuePrograms();
+    program.inExecutionProgram();
+    program.blockedProgramsQueue();
+    program.donePrograms();
+    */
+
+    getch();
     CLEAR;   
     std::cout << "HASTA LUEGO!";
     return 0;

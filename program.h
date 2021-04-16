@@ -27,30 +27,48 @@
 class program
 {
     public:
-        program() {timeDone=0;}
+        program() {onServiceTime=0;}
         
+        //setters for display data
         void setName(std::string data) {name = data;};
         void setOperation(std::string data) {operation = data;};
         void setID(std::string data) {ID = data;};
         void setResult(std::string data) {result = data;};
         void setETA(short data) {ETA = data;};
-        void setTimeDone(short data) {timeDone = data;};
+        void setDoneHour(short data) {finalizationHour = data;};
 
+        //setters for calculated times
+        void setBlockedTime(short data) {blockedTime = data;};
+        void setArrivalTime(short data) {arrivalHour = data;};
+        void setReturnTime(short data) {returnTime = data;};
+        void setResponseTime(short data) {responseTime = data;};
+        void setOnWaitTime(short data) {onHoldTime = data;};
+        void setServiceTime(short data) {onServiceTime = data;};
+
+        //getters for display data
         std::string getName() {return name;};
         std::string getOperation() {return operation;};
         std::string getID() {return ID;};
         std::string getResult() {return result;};
         short getETA() {return ETA;};
-        short getTimeDone() {return timeDone;};
+
+        //getters for calculated times
+        short getBlockedTime() {return blockedTime;};
+        short getArrivalTime() {return arrivalHour;};
+        short getTimeDone() {return finalizationHour;};
+        short getReturnTime() {return returnTime;};
+        short getResponseTime() {return responseTime;};
+        short getOnWaitTime() {return onHoldTime;};
+        short getServiceTime() {return onServiceTime;};
 
     private:
         std::string name, operation, ID, result;
         short num1, num2;
         
         //All times
-        short ETA, blockedTime;
+        short ETA=0, blockedTime=0;
         //Calculated times
-        short arrivalTime, timeDone, returnTime, responseTime, onWaitTime, onServiceTime;
+        short arrivalHour=0, finalizationHour=0, returnTime=0, responseTime=0, onHoldTime=0, onServiceTime=0;
 };
 
 #endif
