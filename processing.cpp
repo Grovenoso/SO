@@ -98,6 +98,7 @@ void processing::displayProccessing()
     HIDECURSOR; //Hides the cursor
     for(short i(0); i<programM.size(); ++i){
         ongoingBatchV = programM[i];
+        updateArrivalTime();
         for(short j(0); j<ongoingBatchV.size(); ++j){
             inBatchProgramNumber=j;
             onQueuePrograms();
@@ -163,6 +164,10 @@ void processing::inExecutionProgram()
     inExecutionP = ongoingBatchV[inBatchProgramNumber];
     
     for (short i=inExecutionP->getServiceTime(); i < inExecutionP->getETA(); ++i){        
+        //updating response time
+        if(!inExecutionP->getServiceTime())
+            updateResponseTime();
+
         //printing all program data
         GOTOXY(25, 3);
         std::cout << "Programa en ejecucion";
@@ -200,6 +205,7 @@ void processing::inExecutionProgram()
                 //and program result are updated
                 i = inExecutionP->getETA();
                 inExecutionP->setResult("ERROR");
+                updateFinalizationHour();
                 break;
 
             case 'i':
@@ -226,6 +232,7 @@ void processing::inExecutionProgram()
         //time increments
         globalTime++;
         inExecutionP->setServiceTime(inExecutionP->getServiceTime() + 1);
+        updateOnHoldTime();
         
         //pause (in miliseconds)
         SLEEP(600);
@@ -233,8 +240,10 @@ void processing::inExecutionProgram()
     
     //if it was sent to blocked we don't add it to the done vector and
     // pass onto the next program
-    if (!interruption)
+    if (!interruption){
         doneProgramV.push_back(inExecutionP);
+        updateFinalizationHour();
+    }
 }
 
 void processing::blockedProgramsQueue()
@@ -284,9 +293,56 @@ void processing::donePrograms()
     }
 }
 
+void processing::updateArrivalTime()
+{
+    for(short i(0); i<ongoingBatchV.size(); ++i){
+        auxP = ongoingBatchV[i];
+        auxP->setArrivalTime(globalTime);
+    }
+}
+
+void processing::updateFinalizationHour()
+{
+    inExecutionP->setFinalizationHour(globalTime);
+    updateReturnTime();
+}
+
+void processing::updateReturnTime()
+{
+    inExecutionP->setReturnTime(inExecutionP->getFinalizationHour() - inExecutionP->getArrivalTime());
+}
+
+void processing::updateResponseTime()
+{
+    inExecutionP->setResponseTime(globalTime - inExecutionP->getArrivalTime());
+}
+
+void processing::updateOnHoldTime()
+{
+    for (short i = inBatchProgramNumber+1; i<ongoingBatchV.size(); ++i){
+        ongoingBatchV[i]->setOnHoldTime(auxP->getOnHoldTime() + 1);
+    }
+}
+
+void processing::printData()
+{
+    std::cout << "ID: " << auxP->getID() << std::endl
+              << "OP: " << auxP->getOperation() << std:: endl
+              << "R: " << auxP->getResult() << std::endl
+              << "TME: " << auxP->getETA() << std::endl
+              << "T Llegada: " << auxP->getArrivalTime() << std::endl
+              << "T Finalizacion: " << auxP->getFinalizationHour() << std::endl
+              << "T Retorno: " << auxP->getReturnTime() << std::endl
+              << "T Respuesta: " << auxP->getResponseTime() << std::endl
+              << "T Espera: " << auxP->getOnHoldTime() << std::endl
+              << "T Servicio: " << auxP->getServiceTime() << std::endl << std::endl;
+}
+
 void processing::finishedProgram()
 {
-    /*
-    show all shit
-    */
+    CLEAR;
+    for(short i(0); i<doneProgramV.size(); ++i){
+        auxP = doneProgramV[i];
+        printData();
+    }
 }

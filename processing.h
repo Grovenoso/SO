@@ -37,8 +37,16 @@ class processing
         //(updates on change of state)
         void donePrograms();
 
+        //calculated times functions
+        void updateArrivalTime();
+        void updateFinalizationHour();
+        void updateReturnTime();
+        void updateResponseTime();
+        void updateOnHoldTime();
+
         //function that shows all programs data and its calculated times
         void finishedProgram();
+        void printData();
 
     private:
         //control variables

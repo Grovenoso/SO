@@ -39,14 +39,13 @@ class program
         }
         
         //setters for display data
-        void setName(std::string data) {name = data;};
         void setOperation(std::string data) {operation = data;};
         void setID(std::string data) {ID = data;};
         void setResult(std::string data) {result = data;};
 
         //setters for all times
         void setETA(short data) {ETA = data;};
-        void setFinalization(short data) {finalizationHour = data;};
+        void setFinalizationHour(short data) {finalizationHour = data;};
         void setBlockedTime(short data) {blockedTime = data;};
         void setArrivalTime(short data) {arrivalHour = data;};
         void setReturnTime(short data) {returnTime = data;};
@@ -55,7 +54,6 @@ class program
         void setServiceTime(short data) {onServiceTime = data;};
 
         //getters for display data
-        std::string getName() {return name;};
         std::string getOperation() {return operation;};
         std::string getID() {return ID;};
         std::string getResult() {return result;};

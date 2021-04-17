@@ -7,7 +7,7 @@ int main()
     
     program.createProgramEntry();
     program.displayProccessing();
-    
+    program.finishedProgram();
     getch();
     CLEAR;   
     std::cout << "HASTA LUEGO!";
