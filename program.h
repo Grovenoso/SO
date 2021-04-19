@@ -34,7 +34,7 @@ class program
             arrivalHour=-1; 
             returnTime=-1; 
             responseTime=-1;
-            onHoldTime=-1; 
+            onHoldTime=0; 
             onServiceTime=0;
         }
         

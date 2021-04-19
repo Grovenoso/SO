@@ -88,17 +88,30 @@ void processing::displayProccessing()
 {
     HIDECURSOR; //Hides the cursor
 
-    //the firs 5 programs are loaded into memory before the programs execution starts
-    for(short i(0); i<newProgramsBatchSize; ++i){
-        readyProgramsV.push_back(newProgramsV[0]);
-        newProgramsV.erase(newProgramsV.begin());
+    if(numberOfPrograms >= newProgramsBatchSize){
+        //the first 5 programs are loaded into memory before the programs execution starts
+        for(short i(0); i<newProgramsBatchSize; ++i){
+            readyProgramsV.push_back(newProgramsV[0]);
+            newProgramsV.erase(newProgramsV.begin());
+        }
+    }
+    else{
+        for(short i(0); i<numberOfPrograms; ++i){
+            readyProgramsV.push_back(newProgramsV[0]);
+            newProgramsV.erase(newProgramsV.begin());
+        }
     }
 
     //it will keep going on until the new programs queue and the ready programs are executed
-    while(!newProgramsV.empty() || !readyProgramsV.empty()){
-        //as soon as we get the program in the front of the queue we get it off it
-        inExecutionP = readyProgramsV[0];
-        readyProgramsV.erase(readyProgramsV.begin());
+    while(doneProgramV.size() != numberOfPrograms){
+        //when a program enters to the memory the arrival hour has to be updated
+        updateArrivalTime();
+        
+        if(!readyProgramsV.empty()){
+            //as soon as we get the program in the front of the queue we get it off it
+            inExecutionP = readyProgramsV[0];
+            readyProgramsV.erase(readyProgramsV.begin());
+        }
 
         //we restart the interruption flag
         interruption = false;
@@ -157,7 +170,7 @@ void processing::onQueuePrograms()
         std::cout << std::endl
                   << "ID: " << readyProgramsV[i]->getID()
                   << std::endl
-                  << "ETA: " << readyProgramsV[i]->getETA()
+                  << "TME: " << readyProgramsV[i]->getETA()
                   << std::endl
                   << "TT: " << readyProgramsV[i]->getServiceTime()
                   << std::endl;
@@ -166,82 +179,107 @@ void processing::onQueuePrograms()
 
 void processing::inExecutionProgram()
 {
-    for (short i=inExecutionP->getServiceTime(); i < inExecutionP->getETA(); ++i){        
+    if(readyProgramsV.empty() && !blockedProgramsV.empty()){
+        for(short i(0); i<5; ++i){
+            GOTOXY(25, 3);
+            std::cout << "Programa en ejecucion";
+            GOTOXY(25, 4);
+            std::cout << "ID: --";
+            GOTOXY(25, 5);
+            std::cout << "OP: -----";
+            GOTOXY(25, 6);
+            std::cout << "TME: ---";
+            GOTOXY(25, 7);
+            std::cout << "TT: ---";
+            GOTOXY(25, 8);
+            std::cout << "TRE: ---";
+            interruption = true;
 
-        //updating response time
-        if(!inExecutionP->getServiceTime())
-            updateResponseTime();
+            //parts of the screen that need to be updated every second
+            headTitle();
+            blockedProgramsQueue();
 
-        //printing all program data
-        GOTOXY(25, 3);
-        std::cout << "Programa en ejecucion";
-        GOTOXY(25, 4);
-        std::cout << "ID: " << inExecutionP->getID();
-        GOTOXY(25, 5);
-        std::cout << "OP: " << inExecutionP->getOperation();
-        GOTOXY(25, 6);
-        std::cout << "ETA: " << inExecutionP->getETA();
-        GOTOXY(25, 7);
-        std::cout << "TT: " << inExecutionP->getServiceTime();
-        GOTOXY(25, 8);
-        std::cout << "TRE: ";
-        if (inExecutionP->getETA() - i < 10)
-            std::cout << "0";
-        std::cout << inExecutionP->getETA() - i;
+            //time increments
+            globalTime++;
 
-        //keyboard listening for quick actions
-        if (kbhit()){
-            switch (getch()){
-            case 'p':
-                //if paused the execution state and its printing is updated
-                execState = false;
-                headTitle();
-
-                //when the execution state is continued the state
-                //and its printing are updated
-                while (!kbhit() && getch() != 'c'){}
-                execState = true;
-                headTitle();
-                break;
-
-            case 'e':
-                //if the e key is pressed the control index 
-                //and program result are updated
-                i = inExecutionP->getETA();
-                inExecutionP->setResult("ERROR");
-                updateFinalizationHour();
-                break;
-
-            case 'i':
-                //data and program is set to the blocked vector
-                inExecutionP->setBlockedTime(5);
-                blockedProgramsV.push_back(inExecutionP);
-                
-                //interruption flag is activated
-                interruption = true;                
-                break;
-            }
+            //pause (in miliseconds)
+            SLEEP(600);
         }
-
-        //parts of the screen that need to be updated every second
-        headTitle();
-        blockedProgramsQueue();
-
-        //time increments
-        globalTime++;
-        inExecutionP->setServiceTime(inExecutionP->getServiceTime() + 1);
-        updateOnHoldTime();
-        
-        if(interruption)
-            break;
-
-        //pause (in miliseconds)
-        SLEEP(600);
     }
-    
-    //if it was sent to blocked we don't add it to the done vector and
-    // pass onto the next program
-    if (!interruption){
+    else{
+        for (short i=inExecutionP->getServiceTime(); i < inExecutionP->getETA(); ++i){        
+
+            //updating response time
+            if(!inExecutionP->getServiceTime())
+                updateResponseTime();
+
+            //printing all program data
+            GOTOXY(25, 3);
+            std::cout << "Programa en ejecucion";
+            GOTOXY(25, 4);
+            std::cout << "ID: " << inExecutionP->getID();
+            GOTOXY(25, 5);
+            std::cout << "OP: " << inExecutionP->getOperation();
+            GOTOXY(25, 6);
+            std::cout << "TME: " << inExecutionP->getETA();
+            GOTOXY(25, 7);
+            std::cout << "TT: " << inExecutionP->getServiceTime();
+            GOTOXY(25, 8);
+            std::cout << "TRE: ";
+            if (inExecutionP->getETA() - i < 10)
+                std::cout << "0";
+            std::cout << inExecutionP->getETA() - i;
+
+            //keyboard listening for quick actions
+            if (kbhit()){
+                switch (getch()){
+                case 'p':
+                    //if paused the execution state and its printing is updated
+                    execState = false;
+                    headTitle();
+
+                    //when the execution state is continued the state
+                    //and its printing are updated
+                    while (!kbhit() && getch() != 'c'){}
+                    execState = true;
+                    headTitle();
+                    break;
+
+                case 'e':
+                    //if the e key is pressed the control index 
+                    //and program result are updated
+                    i = inExecutionP->getETA();
+                    inExecutionP->setResult("ERROR");
+                    updateFinalizationHour();
+                    break;
+
+                case 'i':
+                    //data and program is set to the blocked vector
+                    inExecutionP->setBlockedTime(5);
+                    blockedProgramsV.push_back(inExecutionP);
+                    
+                    //interruption flag is activated
+                    interruption = true;                
+                    break;
+                }
+            }
+            if(interruption)
+                return;
+
+            //parts of the screen that need to be updated every second
+            headTitle();
+            blockedProgramsQueue();
+
+            //time increments
+            globalTime++;
+            inExecutionP->setServiceTime(inExecutionP->getServiceTime() + 1);
+            updateOnHoldTime();
+
+            //pause (in miliseconds)
+            SLEEP(600);
+        }
+        //if it was sent to blocked we don't add it to the done vector and
+        // pass onto the next program
         doneProgramV.push_back(inExecutionP);
         updateFinalizationHour();
     }
@@ -263,6 +301,7 @@ void processing::blockedProgramsQueue()
             readyProgramsV.push_back(auxP);
             blockedProgramsV.erase(blockedProgramsV.begin()+i);
             
+            onQueuePrograms();
             //when a program stops beign blocked
             //the blocked programs queue the head title
             //the ready programs queue and potentially the programs that are done
@@ -273,8 +312,6 @@ void processing::blockedProgramsQueue()
                 GOTOXY(25, (j * 3) + 13);
                 std::cout << "      ";
             }
-            //headTitle();
-            onQueuePrograms();
         }
         
         else
@@ -324,7 +361,7 @@ void processing::updateResponseTime()
 
 void processing::updateOnHoldTime()
 {
-    for (short i = 1; i<readyProgramsV.size(); ++i){
+    for (short i = 0; i<readyProgramsV.size(); ++i){
         readyProgramsV[i]->setOnHoldTime(auxP->getOnHoldTime() + 1);
     }
 }
