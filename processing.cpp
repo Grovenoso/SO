@@ -9,7 +9,6 @@ void processing::createProgramEntry()
     
     //temporal program and vector for the capture
     program *temporalProgram;
-    std::vector<program *> batchVector;
 
     //We ask the user the number of programs to be simulated
     std::cout << "Ingrese el numero de programas a procesar: ";
@@ -80,44 +79,51 @@ void processing::createProgramEntry()
             temporalProgram->setResult(std::to_string(result));
         } while (divisionByZero);
 
-        batchVector.push_back(temporalProgram);
-        actualPrograms++;
-        if (batchVector.size() == batchSize){
-            programM.push_back(batchVector);
-            batchVector.clear();
-        }
+        newProgramsV.push_back(temporalProgram);
     }
-    
-    if(batchVector.size() > 0)
-        programM.push_back(batchVector);
     CLEAR;
 }
 
 void processing::displayProccessing()
 {
     HIDECURSOR; //Hides the cursor
-    for(short i(0); i<programM.size(); ++i){
-        ongoingBatchV = programM[i];
-        updateArrivalTime();
-        for(short j(0); j<ongoingBatchV.size(); ++j){
-            inBatchProgramNumber=j;
-            onQueuePrograms();
-            donePrograms();
-            inExecutionProgram();
-            
-            //in case of an interruption the j index decreases as
-            //the vector decreased
-            if(interruption){
-                j--;
-                interruption = false;
-            }
-            CLEAR;
-        }
+
+    //the firs 5 programs are loaded into memory before the programs execution starts
+    for(short i(0); i<newProgramsBatchSize; ++i){
+        readyProgramsV.push_back(newProgramsV[0]);
+        newProgramsV.erase(newProgramsV.begin());
     }
-    //last program is showed on the queue 
+
+    //it will keep going on until the new programs queue and the ready programs are executed
+    while(!newProgramsV.empty() || !readyProgramsV.empty()){
+        //as soon as we get the program in the front of the queue we get it off it
+        inExecutionP = readyProgramsV[0];
+        readyProgramsV.erase(readyProgramsV.begin());
+
+        //we restart the interruption flag
+        interruption = false;
+
+        //control variable to know if a new program can enter to the system
+        getNewProgram = (readyProgramsV.size() + blockedProgramsV.size() < newProgramsBatchSize-1) && !newProgramsV.empty();
+
+        //we evaluate if there's memory space for a new program to get in
+        if (getNewProgram){
+            readyProgramsV.push_back(newProgramsV[0]);
+            newProgramsV.erase(newProgramsV.begin());
+        }
+
+        //we update this printings only on a change of state
+        onQueuePrograms();
+        donePrograms();
+        inExecutionProgram();
+        CLEAR;
+    }
+    //last program is showed on the queue
     headTitle();
     onQueuePrograms();
     donePrograms();
+
+    //we get a pause after the program's ended
     getch();
     SHOWCURSOR; //shows the cursor back
 }
@@ -126,11 +132,11 @@ void processing::headTitle()
 {
     //number of new programs
     GOTOXY(0,0);
-    std::cout << "Procesos nuevos: " << numberOfPrograms - actualPrograms;
+    std::cout << "Procesos nuevos: " << newProgramsV.size();
     
     //total number of programs
     GOTOXY(25,0);
-    std::cout << "Numero total de procesos: " << actualPrograms;
+    std::cout << "Numero total de procesos: " << numberOfPrograms;
 
     //global time count
     GOTOXY(60,0);
@@ -147,23 +153,21 @@ void processing::onQueuePrograms()
     GOTOXY(0, 3);
     std::cout << "Procesos listos";
 
-    for (short i = inBatchProgramNumber+1; i < ongoingBatchV.size(); ++i){
+    for (short i = 0; i < readyProgramsV.size(); ++i){
         std::cout << std::endl
-                  << "ID: " << ongoingBatchV[i]->getID()
+                  << "ID: " << readyProgramsV[i]->getID()
                   << std::endl
-                  << "ETA: " << ongoingBatchV[i]->getETA()
+                  << "ETA: " << readyProgramsV[i]->getETA()
                   << std::endl
-                  << "TT: " << ongoingBatchV[i]->getServiceTime()
+                  << "TT: " << readyProgramsV[i]->getServiceTime()
                   << std::endl;
     }
 }
 
 void processing::inExecutionProgram()
 {
-    //program in execution
-    inExecutionP = ongoingBatchV[inBatchProgramNumber];
-    
     for (short i=inExecutionP->getServiceTime(); i < inExecutionP->getETA(); ++i){        
+
         //updating response time
         if(!inExecutionP->getServiceTime())
             updateResponseTime();
@@ -213,13 +217,7 @@ void processing::inExecutionProgram()
                 inExecutionP->setBlockedTime(5);
                 blockedProgramsV.push_back(inExecutionP);
                 
-                //the program is erased from the vector that 
-                //is currently in execution
-                ongoingBatchV.erase(ongoingBatchV.begin());
-                
-                //control index is set to move to the nex program
-                //and interruption flag is activated
-                i = inExecutionP->getETA();
+                //interruption flag is activated
                 interruption = true;                
                 break;
             }
@@ -234,6 +232,9 @@ void processing::inExecutionProgram()
         inExecutionP->setServiceTime(inExecutionP->getServiceTime() + 1);
         updateOnHoldTime();
         
+        if(interruption)
+            break;
+
         //pause (in miliseconds)
         SLEEP(600);
     }
@@ -257,20 +258,23 @@ void processing::blockedProgramsQueue()
         GOTOXY(25,(i*3)+13);
         std::cout << "TRB: " << blockedProgramsV[i]->getBlockedTime();
 
-        if (!(blockedProgramsV[i]->getBlockedTime())){
+        if (blockedProgramsV[i]->getBlockedTime()==0){
             auxP = blockedProgramsV[i];
-            ongoingBatchV.push_back(auxP);
+            readyProgramsV.push_back(auxP);
             blockedProgramsV.erase(blockedProgramsV.begin()+i);
             
             //when a program stops beign blocked
             //the blocked programs queue the head title
             //the ready programs queue and potentially the programs that are done
-            //should be updated, so the screen is cleared
-            CLEAR;            
-            blockedProgramsQueue();
-            headTitle();
+            //should be updated
+            for(short j(0); j<blockedProgramsV.size()+1; ++j){
+                GOTOXY(25, (j * 3) + 12);
+                std::cout << "      ";
+                GOTOXY(25, (j * 3) + 13);
+                std::cout << "      ";
+            }
+            //headTitle();
             onQueuePrograms();
-            donePrograms();
         }
         
         else
@@ -295,9 +299,10 @@ void processing::donePrograms()
 
 void processing::updateArrivalTime()
 {
-    for(short i(0); i<ongoingBatchV.size(); ++i){
-        auxP = ongoingBatchV[i];
-        auxP->setArrivalTime(globalTime);
+    for(short i(0); i<readyProgramsV.size(); ++i){
+        auxP = readyProgramsV[i];
+        if(auxP->getArrivalTime() == -1)
+            auxP->setArrivalTime(globalTime);
     }
 }
 
@@ -319,8 +324,8 @@ void processing::updateResponseTime()
 
 void processing::updateOnHoldTime()
 {
-    for (short i = inBatchProgramNumber+1; i<ongoingBatchV.size(); ++i){
-        ongoingBatchV[i]->setOnHoldTime(auxP->getOnHoldTime() + 1);
+    for (short i = 1; i<readyProgramsV.size(); ++i){
+        readyProgramsV[i]->setOnHoldTime(auxP->getOnHoldTime() + 1);
     }
 }
 

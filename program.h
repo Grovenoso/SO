@@ -28,13 +28,13 @@ class program
 {
     public:
         program() {
-            ETA=0; 
-            finalizationHour=0;
-            blockedTime=0;
-            arrivalHour=0; 
-            returnTime=0; 
-            responseTime=0;
-            onHoldTime=0; 
+            ETA=-1; 
+            finalizationHour=-1;
+            blockedTime=-1;
+            arrivalHour=-1; 
+            returnTime=-1; 
+            responseTime=-1;
+            onHoldTime=-1; 
             onServiceTime=0;
         }
         

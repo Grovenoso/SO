@@ -7,9 +7,11 @@ class processing
 {
     public:
         processing(){globalTime=0;
-        actualPrograms = 0;
-        execState = 1;}
-        
+        execState = 1;
+        newProgramsBatchSize = 5;
+        interruption= false;
+        execState = true;
+        getNewProgram = false;}
 
         //creates the programs
         void createProgramEntry();
@@ -50,29 +52,27 @@ class processing
 
     private:
         //control variables
-        short batchSize = 5;
+        short newProgramsBatchSize;
             
             //boolean to cut the execution in case of interruption
-        bool interruption = false;
+        bool interruption;
 
         //number of programs that'll be created
         short numberOfPrograms;
             
-            //number of programs actually created
-        short actualPrograms;
-            
             //indexes
-        short globalProgramNumber, inBatchProgramNumber, ongoingBatchI;
+        short inBatchProgramNumber;
         
             //times
         short globalTime;
 
             //execution state
         bool execState;
+        bool getNewProgram;
 
             //program vectors
-        std::vector<std::vector<program *>> programM;
-        std::vector<program *> ongoingBatchV;
+        std::vector<program *> newProgramsV;
+        std::vector<program *> readyProgramsV;
         std::vector<program *> doneProgramV;
         std::vector<program *> blockedProgramsV;
 
