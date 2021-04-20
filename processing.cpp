@@ -179,8 +179,10 @@ void processing::onQueuePrograms()
 
 void processing::inExecutionProgram()
 {
-    if(readyProgramsV.empty() && !blockedProgramsV.empty()){
-        for(short i(0); i<5; ++i){
+    if(doneProgramV.size() + blockedProgramsV.size() == numberOfPrograms){
+        short timeRemaining = blockedProgramsV.front()->getBlockedTime() + 1;
+        
+        for (short i(0); i < timeRemaining; ++i){
             GOTOXY(25, 3);
             std::cout << "Programa en ejecucion";
             GOTOXY(25, 4);
