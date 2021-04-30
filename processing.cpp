@@ -1,6 +1,17 @@
 #include "processing.h"
 
-void processing::createProgramEntry()
+void processing::getNumberOfPrograms()
+{
+    short entryNumberOfPrograms;
+    //We ask the user the number of programs to be simulated
+    std::cout << "Ingrese el numero de programas a procesar: ";
+    std::cin >> entryNumberOfPrograms;
+
+    entryNumberOfPrograms;
+    createProgramEntry(entryNumberOfPrograms);
+}
+
+void processing::createProgramEntry(short programs)
 {
     bool divisionByZero;
     short number1, number2, kindOfOperation,result;
@@ -10,19 +21,14 @@ void processing::createProgramEntry()
     //temporal program and vector for the capture
     program *temporalProgram;
 
-    //We ask the user the number of programs to be simulated
-    std::cout << "Ingrese el numero de programas a procesar: ";
-    std::cin >> numberOfPrograms;
-
-
-    for(short i(0); i < numberOfPrograms; ++i){
+    for(short i(0); i < programs; ++i){
         
         temporalProgram = new program();
         
         //ETA will be between 6 & 15
         temporalProgram->setETA((rand()%10)+6);
         //ID will be the index
-        temporalProgram->setID(std::to_string(i+1));
+        temporalProgram->setID(std::to_string(numberOfPrograms+1));
 
         do{
             //empties the operation string and resets boolean
@@ -80,30 +86,34 @@ void processing::createProgramEntry()
         } while (divisionByZero);
 
         newProgramsV.push_back(temporalProgram);
+        numberOfPrograms++;
     }
     CLEAR;
+}
+
+void processing::clearScreen()
+{
+    CLEAR;
+    headTitle();
+    onQueuePrograms();
+    blockedProgramsQueue();
+    donePrograms();
+}
+
+void processing::updateOnQueuePrograms()
+{
+    while ((readyProgramsV.size()+blockedProgramsV.size()+1) < 5 && !newProgramsV.empty()){
+        readyProgramsV.push_back(newProgramsV[0]);
+        newProgramsV.erase(newProgramsV.begin());
+    }
 }
 
 void processing::displayProccessing()
 {
     HIDECURSOR; //Hides the cursor
-
-    if(numberOfPrograms >= newProgramsBatchSize){
-        //the first 5 programs are loaded into memory before the programs execution starts
-        for(short i(0); i<newProgramsBatchSize; ++i){
-            readyProgramsV.push_back(newProgramsV[0]);
-            newProgramsV.erase(newProgramsV.begin());
-        }
-    }
-    else{
-        for(short i(0); i<numberOfPrograms; ++i){
-            readyProgramsV.push_back(newProgramsV[0]);
-            newProgramsV.erase(newProgramsV.begin());
-        }
-    }
-
+    updateOnQueuePrograms();
     //it will keep going on until the new programs queue and the ready programs are executed
-    while(doneProgramV.size() != numberOfPrograms){
+    while (doneProgramV.size() != numberOfPrograms){
         //when a program enters to the memory the arrival hour has to be updated
         updateArrivalTime();
         
@@ -253,15 +263,30 @@ void processing::inExecutionProgram()
                     i = inExecutionP->getETA();
                     inExecutionP->setResult("ERROR");
                     updateFinalizationHour();
+                    updateOnQueuePrograms();
                     break;
 
                 case 'i':
                     //data and program is set to the blocked vector
                     inExecutionP->setBlockedTime(5);
                     blockedProgramsV.push_back(inExecutionP);
-                    
+                    updateOnQueuePrograms();
+
                     //interruption flag is activated
                     interruption = true;                
+                    break;
+                
+                case 'n':
+                    //create a new program
+                    createProgramEntry(1);
+                    updateOnQueuePrograms();
+                    clearScreen();
+                    break;
+
+                case 'b':
+                    bcp();
+                    while (!kbhit() && getch() != 'c'){}
+                    clearScreen();
                     break;
                 }
             }
@@ -365,6 +390,39 @@ void processing::updateOnHoldTime()
 {
     for (short i = 0; i<readyProgramsV.size(); ++i){
         readyProgramsV[i]->setOnHoldTime(auxP->getOnHoldTime() + 1);
+    }
+}
+
+void processing::bcp()
+{
+    CLEAR;
+
+    //new programs
+    for(short i(0); i < newProgramsV.size(); ++i){
+        auxP = newProgramsV[i];
+        printData();
+    }
+
+    //ready programs
+    for(short i(0); i < readyProgramsV.size(); ++i){
+        auxP = readyProgramsV[i];
+        printData();
+    }
+
+    //in execution program
+    auxP = inExecutionP;
+    printData();
+
+    //blocked programs
+    for(short i(0); i < blockedProgramsV.size(); ++i){
+        auxP = blockedProgramsV[i];
+        printData();
+    }
+
+    //done programs
+    for (short i(0); i < doneProgramV.size(); ++i){
+        auxP = doneProgramV[i];
+        printData();
     }
 }
 

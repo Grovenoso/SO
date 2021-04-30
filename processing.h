@@ -11,14 +11,20 @@ class processing
         newProgramsBatchSize = 5;
         interruption= false;
         execState = true;
-        getNewProgram = false;}
+        getNewProgram = false;
+        numberOfPrograms = 0;}
 
         //creates the programs
-        void createProgramEntry();
+        void createProgramEntry(short programs);
+        void getNumberOfPrograms();
 
         //main function that calls on the others
         void displayProccessing();
         
+        //function that clears the screen and calls 
+        //out the others functions to show data
+        void clearScreen();
+
         //head title info 
         //(updated every second)
         void headTitle();
@@ -26,6 +32,7 @@ class processing
         //programs ready that are on immediate queue 
         //(updates on change of state)
         void onQueuePrograms();
+        void updateOnQueuePrograms();
         
         //program that's actually in exection
         //(updates on change of state)
@@ -45,6 +52,9 @@ class processing
         void updateReturnTime();
         void updateResponseTime();
         void updateOnHoldTime();
+
+        //BCP function that shows all program data in the middle of execution
+        void bcp();
 
         //function that shows all programs data and its calculated times
         void finishedProgram();

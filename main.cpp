@@ -5,7 +5,7 @@ int main()
     processing program;
     CLEAR;
     
-    program.createProgramEntry();
+    program.getNumberOfPrograms();
     program.displayProccessing();
     program.finishedProgram();
     getch();
