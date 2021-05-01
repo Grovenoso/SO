@@ -397,33 +397,34 @@ void processing::bcp()
 {
     CLEAR;
 
+    //done programs
+    for (short i(0); i < doneProgramV.size(); ++i){
+        auxP = doneProgramV[i];
+        printData();
+    }
+    
+    //in execution program
+    auxP = inExecutionP;
+    printData();
+    
+    //ready programs
+    for(short i(0); i < readyProgramsV.size(); ++i){
+        auxP = readyProgramsV[i];
+        printData();
+    }
+    
+    //blocked programs
+    for(short i(0); i < blockedProgramsV.size(); ++i){
+        auxP = blockedProgramsV[i];
+        printData();
+    }
+    
     //new programs
     for(short i(0); i < newProgramsV.size(); ++i){
         auxP = newProgramsV[i];
         printData();
     }
 
-    //ready programs
-    for(short i(0); i < readyProgramsV.size(); ++i){
-        auxP = readyProgramsV[i];
-        printData();
-    }
-
-    //in execution program
-    auxP = inExecutionP;
-    printData();
-
-    //blocked programs
-    for(short i(0); i < blockedProgramsV.size(); ++i){
-        auxP = blockedProgramsV[i];
-        printData();
-    }
-
-    //done programs
-    for (short i(0); i < doneProgramV.size(); ++i){
-        auxP = doneProgramV[i];
-        printData();
-    }
 }
 
 void processing::printData()
