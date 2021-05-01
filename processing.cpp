@@ -307,6 +307,7 @@ void processing::inExecutionProgram()
         }
         //if it was sent to blocked we don't add it to the done vector and
         // pass onto the next program
+        inExecutionP->updateDoneState(true);
         doneProgramV.push_back(inExecutionP);
         updateFinalizationHour();
     }
@@ -431,7 +432,7 @@ void processing::printData()
 {
     std::cout << "ID: " << auxP->getID() << std::endl
               << "OP: " << auxP->getOperation() << std:: endl
-              << "R: " << auxP->getResult() << std::endl
+              << "R: " << (auxP->getDoneState() ? auxP->getResult() : "-1") << std::endl
               << "TME: " << auxP->getETA() << std::endl
               << "T Llegada: " << auxP->getArrivalTime() << std::endl
               << "T Finalizacion: " << auxP->getFinalizationHour() << std::endl

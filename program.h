@@ -36,6 +36,7 @@ class program
             responseTime=-1;
             onHoldTime=0; 
             onServiceTime=0;
+            done=false;
         }
         
         //setters for display data
@@ -53,6 +54,8 @@ class program
         void setOnHoldTime(short data) {onHoldTime = data;};
         void setServiceTime(short data) {onServiceTime = data;};
 
+        void updateDoneState(bool data){done = data;};
+        
         //getters for display data
         std::string getOperation() {return operation;};
         std::string getID() {return ID;};
@@ -68,9 +71,12 @@ class program
         short getOnHoldTime() {return onHoldTime;};
         short getServiceTime() {return onServiceTime;};
 
+        bool getDoneState(){return done;};
+
     private:
         std::string name, operation, ID, result;
         short num1, num2;
+        bool done;
         
         //All times
         short ETA, blockedTime, arrivalHour, finalizationHour, returnTime, responseTime, onHoldTime, onServiceTime;
