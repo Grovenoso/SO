@@ -43,6 +43,7 @@ class program
         void setOperation(std::string data) {operation = data;};
         void setID(std::string data) {ID = data;};
         void setResult(std::string data) {result = data;};
+        void setState(std::string data) {state = data;};
 
         //setters for all times
         void setETA(short data) {ETA = data;};
@@ -60,6 +61,7 @@ class program
         std::string getOperation() {return operation;};
         std::string getID() {return ID;};
         std::string getResult() {return result;};
+        std::string getState() {return state;};
 
         //getters for all times
         short getETA() {return ETA;};
@@ -74,7 +76,7 @@ class program
         bool getDoneState(){return done;};
 
     private:
-        std::string name, operation, ID, result;
+        std::string name, operation, ID, result, state;
         short num1, num2;
         bool done;
         

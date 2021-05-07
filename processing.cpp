@@ -85,6 +85,7 @@ void processing::createProgramEntry(short programs)
             temporalProgram->setResult(std::to_string(result));
         } while (divisionByZero);
 
+        temporalProgram->setState("nuevo");
         newProgramsV.push_back(temporalProgram);
         numberOfPrograms++;
     }
@@ -103,6 +104,7 @@ void processing::clearScreen()
 void processing::updateOnQueuePrograms()
 {
     while ((readyProgramsV.size()+blockedProgramsV.size()+1) < 5 && !newProgramsV.empty()){
+        newProgramsV[0]->setState("listo");
         readyProgramsV.push_back(newProgramsV[0]);
         newProgramsV.erase(newProgramsV.begin());
     }
@@ -131,6 +133,7 @@ void processing::displayProccessing()
 
         //we evaluate if there's memory space for a new program to get in
         if (getNewProgram){
+            newProgramsV[0]->setState("listo");
             readyProgramsV.push_back(newProgramsV[0]);
             newProgramsV.erase(newProgramsV.begin());
         }
@@ -224,7 +227,8 @@ void processing::inExecutionProgram()
             //updating response time
             if(!inExecutionP->getServiceTime())
                 updateResponseTime();
-
+            
+            inExecutionP->setState("en ejecucion");
             //printing all program data
             GOTOXY(25, 3);
             std::cout << "Programa en ejecucion";
@@ -269,6 +273,7 @@ void processing::inExecutionProgram()
                 case 'i':
                     //data and program is set to the blocked vector
                     inExecutionP->setBlockedTime(5);
+                    inExecutionP->setState("bloqueado");
                     blockedProgramsV.push_back(inExecutionP);
                     updateOnQueuePrograms();
 
@@ -308,6 +313,7 @@ void processing::inExecutionProgram()
         //if it was sent to blocked we don't add it to the done vector and
         // pass onto the next program
         inExecutionP->updateDoneState(true);
+        inExecutionP->setState("terminado");
         doneProgramV.push_back(inExecutionP);
         updateFinalizationHour();
     }
@@ -326,6 +332,7 @@ void processing::blockedProgramsQueue()
 
         if (blockedProgramsV[i]->getBlockedTime()==0){
             auxP = blockedProgramsV[i];
+            auxP->setState("listo");
             readyProgramsV.push_back(auxP);
             blockedProgramsV.erase(blockedProgramsV.begin()+i);
             
@@ -431,6 +438,7 @@ void processing::bcp()
 void processing::printData()
 {
     std::cout << "ID: " << auxP->getID() << std::endl
+              << "Estado: " << auxP->getState() << std::endl
               << "OP: " << auxP->getOperation() << std:: endl
               << "R: " << (auxP->getDoneState() ? auxP->getResult() : "-1") << std::endl
               << "TME: " << auxP->getETA() << std::endl
