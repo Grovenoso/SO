@@ -46,6 +46,7 @@ class program
         void setState(std::string data) {state = data;};
 
         //setters for all times
+        void setQuantum(short data) {quantum = data;};
         void setETA(short data) {ETA = data;};
         void setFinalizationHour(short data) {finalizationHour = data;};
         void setBlockedTime(short data) {blockedTime = data;};
@@ -64,6 +65,7 @@ class program
         std::string getState() {return state;};
 
         //getters for all times
+        short getQuantum() {return quantum;};
         short getETA() {return ETA;};
         short getFinalizationHour() {return finalizationHour;};
         short getBlockedTime() {return blockedTime;};
@@ -77,7 +79,7 @@ class program
 
     private:
         std::string name, operation, ID, result, state;
-        short num1, num2;
+        short num1, num2, quantum;
         bool done;
         
         //All times

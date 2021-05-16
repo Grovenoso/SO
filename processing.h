@@ -69,6 +69,9 @@ class processing
 
         //number of programs that'll be created
         short numberOfPrograms;
+
+        //value of the quantum
+        short quantumValue;
             
             //indexes
         short inBatchProgramNumber;

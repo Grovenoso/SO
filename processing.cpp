@@ -3,11 +3,14 @@
 void processing::getNumberOfPrograms()
 {
     short entryNumberOfPrograms;
-    //We ask the user the number of programs to be simulated
+    //We ask the user the number of programs to be simulated and the quantum
     std::cout << "Ingrese el numero de programas a procesar: ";
     std::cin >> entryNumberOfPrograms;
+    
+    std:: cout << std::endl << "Ingrese el valor del Quantum: ";
+    std::cin >> quantumValue;
+    quantumValue--;
 
-    entryNumberOfPrograms;
     createProgramEntry(entryNumberOfPrograms);
 }
 
@@ -29,6 +32,8 @@ void processing::createProgramEntry(short programs)
         temporalProgram->setETA((rand()%10)+6);
         //ID will be the index
         temporalProgram->setID(std::to_string(numberOfPrograms+1));
+        //we set the quantum
+        temporalProgram->setQuantum(quantumValue);
 
         do{
             //empties the operation string and resets boolean
@@ -245,6 +250,8 @@ void processing::inExecutionProgram()
             if (inExecutionP->getETA() - i < 10)
                 std::cout << "0";
             std::cout << inExecutionP->getETA() - i;
+            GOTOXY(25, 9);
+            std::cout << "Q: " << inExecutionP->getQuantum();
 
             //keyboard listening for quick actions
             if (kbhit()){
@@ -306,28 +313,44 @@ void processing::inExecutionProgram()
             globalTime++;
             inExecutionP->setServiceTime(inExecutionP->getServiceTime() + 1);
             updateOnHoldTime();
+            
+            //quantum decreases
+            inExecutionP->setQuantum(inExecutionP->getQuantum()-1);
+
+            if(inExecutionP->getQuantum() < 0){
+                inExecutionP->setQuantum(quantumValue);
+                break;
+            }
 
             //pause (in miliseconds)
             SLEEP(600);
         }
-        //if it was sent to blocked we don't add it to the done vector and
-        // pass onto the next program
-        inExecutionP->updateDoneState(true);
-        inExecutionP->setState("terminado");
-        doneProgramV.push_back(inExecutionP);
-        updateFinalizationHour();
+
+        if(inExecutionP->getServiceTime() == inExecutionP->getETA()){
+            //if it was sent to blocked we don't add it to the done vector and
+            // pass onto the next program
+            inExecutionP->updateDoneState(true);
+            inExecutionP->setState("terminado");
+            doneProgramV.push_back(inExecutionP);
+            updateFinalizationHour();
+        }
+        else{
+            inExecutionP->updateDoneState(false);
+            inExecutionP->setState("listo");
+            readyProgramsV.push_back(inExecutionP);
+        }
     }
 }
 
 void processing::blockedProgramsQueue()
 {
-    GOTOXY(25,10);
+    GOTOXY(25,11);
     std::cout << "Programas bloqueados";
     
     for(short i(0); i<blockedProgramsV.size(); ++i){
-        GOTOXY(25,(i*3)+12);
-        std::cout << "ID: " << blockedProgramsV[i]->getID();
         GOTOXY(25,(i*3)+13);
+        std::cout << "ID: " << blockedProgramsV[i]->getID();
+        GOTOXY(25,(i*3)+14);
         std::cout << "TRB: " << blockedProgramsV[i]->getBlockedTime();
 
         if (blockedProgramsV[i]->getBlockedTime()==0){
@@ -342,9 +365,9 @@ void processing::blockedProgramsQueue()
             //the ready programs queue and potentially the programs that are done
             //should be updated
             for(short j(0); j<blockedProgramsV.size()+1; ++j){
-                GOTOXY(25, (j * 3) + 12);
-                std::cout << "      ";
                 GOTOXY(25, (j * 3) + 13);
+                std::cout << "      ";
+                GOTOXY(25, (j * 3) + 14);
                 std::cout << "      ";
             }
         }
