@@ -169,12 +169,16 @@ void processing::headTitle()
     GOTOXY(25,0);
     std::cout << "Numero total de procesos: " << numberOfPrograms;
 
+    //quantum value
+    GOTOXY(60, 0);
+    std::cout << "Quantum: " << quantumValue + 1;
+
     //global time count
-    GOTOXY(60,0);
+    GOTOXY(75,0);
     std::cout << "Contador global: " << globalTime;
     
     //execution state
-    GOTOXY(85, 0);
+    GOTOXY(100, 0);
     std::cout << "Estado: " << (execState ? "en ejecucion":"pausa       ");
 }
 
