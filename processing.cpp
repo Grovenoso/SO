@@ -7,8 +7,10 @@ void processing::getNumberOfPrograms()
     std::cout << "Ingrese el numero de programas a procesar: ";
     std::cin >> entryNumberOfPrograms;
     
-    std:: cout << std::endl << "Ingrese el valor del Quantum: ";
-    std::cin >> quantumValue;
+    do{        
+        std:: cout << "Ingrese el valor del Quantum (no mayor a 14): ";
+        std::cin >> quantumValue;
+    }while(quantumValue >= 15);
     quantumValue--;
 
     createProgramEntry(entryNumberOfPrograms);
@@ -249,13 +251,18 @@ void processing::inExecutionProgram()
             std::cout << "TME: " << inExecutionP->getETA();
             GOTOXY(25, 7);
             std::cout << "TT: " << inExecutionP->getServiceTime();
+            
             GOTOXY(25, 8);
             std::cout << "TRE: ";
             if (inExecutionP->getETA() - i < 10)
                 std::cout << "0";
             std::cout << inExecutionP->getETA() - i;
+            
             GOTOXY(25, 9);
-            std::cout << "Q: " << inExecutionP->getQuantum();
+            std::cout << "Q: "; 
+            if (inExecutionP->getQuantum() < 10)
+                std::cout << "0";
+            std::cout << inExecutionP->getQuantum();
 
             //keyboard listening for quick actions
             if (kbhit()){
