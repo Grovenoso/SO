@@ -10,7 +10,7 @@ void processing::getNumberOfPrograms()
     do{        
         std:: cout << "Ingrese el valor del Quantum (no mayor a 14): ";
         std::cin >> quantumValue;
-    }while(quantumValue >= 15);
+    }while(quantumValue >= 15 && quantumValue >0 );
     quantumValue--;
 
     createProgramEntry(entryNumberOfPrograms);
