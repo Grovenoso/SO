@@ -285,6 +285,7 @@ void processing::inExecutionProgram()
                     //data and program is set to the blocked vector
                     inExecutionP->setBlockedTime(5);
                     inExecutionP->setState("bloqueado");
+                    inExecutionP->setQuantum(quantumValue);
                     blockedProgramsV.push_back(inExecutionP);
                     updateOnQueuePrograms();
 
