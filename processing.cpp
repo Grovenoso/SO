@@ -3,15 +3,17 @@
 void processing::getNumberOfPrograms()
 {
     short entryNumberOfPrograms;
-    //We ask the user the number of programs to be simulated and the quantum
-    std::cout << "Ingrese el numero de programas a procesar: ";
-    std::cin >> entryNumberOfPrograms;
+    
+    do{
+        //We ask the user the number of programs to be simulated and the quantum
+        std::cout << "Ingrese el numero de programas a procesar: ";
+        std::cin >> entryNumberOfPrograms;
+    }while(entryNumberOfPrograms < 1);
     
     do{        
-        std:: cout << "Ingrese el valor del Quantum (no mayor a 14): ";
+        std:: cout << "Ingrese el valor del Quantum (mayor a 0 pero no mayor a 14): ";
         std::cin >> quantumValue;
-    }while(quantumValue >= 15 && quantumValue >0 );
-    quantumValue--;
+    }while(quantumValue > 14 || quantumValue < 1);
 
     createProgramEntry(entryNumberOfPrograms);
 }
@@ -173,7 +175,7 @@ void processing::headTitle()
 
     //quantum value
     GOTOXY(60, 0);
-    std::cout << "Quantum: " << quantumValue + 1;
+    std::cout << "Quantum: " << quantumValue;
 
     //global time count
     GOTOXY(75,0);
@@ -225,11 +227,12 @@ void processing::inExecutionProgram()
             headTitle();
             blockedProgramsQueue();
 
+            //pause (in miliseconds)
+            SLEEP(600);
+            
             //time increments
             globalTime++;
 
-            //pause (in miliseconds)
-            SLEEP(600);
         }
     }
     else{
@@ -321,6 +324,9 @@ void processing::inExecutionProgram()
             headTitle();
             blockedProgramsQueue();
 
+            //pause (in miliseconds)
+            SLEEP(600);
+            
             //time increments
             globalTime++;
             inExecutionP->setServiceTime(inExecutionP->getServiceTime() + 1);
@@ -329,13 +335,10 @@ void processing::inExecutionProgram()
             //quantum decreases
             inExecutionP->setQuantum(inExecutionP->getQuantum()-1);
 
-            if(inExecutionP->getQuantum() < 0){
+            if(inExecutionP->getQuantum() < 1){
                 inExecutionP->setQuantum(quantumValue);
                 break;
             }
-
-            //pause (in miliseconds)
-            SLEEP(600);
         }
 
         if(inExecutionP->getServiceTime() == inExecutionP->getETA()){
