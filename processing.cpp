@@ -423,20 +423,15 @@ void processing::updateFinalizationHour()
 }
 
 void processing::updateReturnTime()
-{
-    inExecutionP->setReturnTime(inExecutionP->getFinalizationHour() - inExecutionP->getArrivalTime());
-}
+{inExecutionP->setReturnTime(inExecutionP->getFinalizationHour() - inExecutionP->getArrivalTime());}
 
 void processing::updateResponseTime()
-{
-    inExecutionP->setResponseTime(globalTime - inExecutionP->getArrivalTime());
-}
+{inExecutionP->setResponseTime(globalTime - inExecutionP->getArrivalTime());}
 
 void processing::updateOnHoldTime()
 {
-    for (short i = 0; i<readyProgramsV.size(); ++i){
-        readyProgramsV[i]->setOnHoldTime(auxP->getOnHoldTime() + 1);
-    }
+    for (short i = 0; i<readyProgramsV.size(); ++i)
+        readyProgramsV[i]->setOnHoldTime(auxP->getOnHoldTime() + 1);    
 }
 
 void processing::bcp()
@@ -491,6 +486,7 @@ void processing::printData()
 void processing::finishedProgram()
 {
     CLEAR;
+    
     for(short i(0); i<doneProgramV.size(); ++i){
         auxP = doneProgramV[i];
         printData();
