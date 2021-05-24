@@ -123,8 +123,10 @@ void processing::displayProccessing()
 {
     HIDECURSOR; //Hides the cursor
     updateOnQueuePrograms();
+    
     //it will keep going on until the new programs queue and the ready programs are executed
     while (doneProgramV.size() != numberOfPrograms){
+        
         //when a program enters to the memory the arrival hour has to be updated
         updateArrivalTime();
         
@@ -153,6 +155,7 @@ void processing::displayProccessing()
         inExecutionProgram();
         CLEAR;
     }
+    
     //last program is showed on the queue
     headTitle();
     onQueuePrograms();
@@ -228,7 +231,7 @@ void processing::inExecutionProgram()
             blockedProgramsQueue();
 
             //pause (in miliseconds)
-            SLEEP(600);
+            SLEEP(700);
             
             //time increments
             globalTime++;
@@ -285,7 +288,7 @@ void processing::inExecutionProgram()
                 case 'e':
                     //if the e key is pressed the control index 
                     //and program result are updated
-                    i = inExecutionP->getETA();
+                    i = inExecutionP->getETA() + 1;
                     inExecutionP->setResult("ERROR");
                     updateFinalizationHour();
                     updateOnQueuePrograms();
@@ -325,7 +328,7 @@ void processing::inExecutionProgram()
             blockedProgramsQueue();
 
             //pause (in miliseconds)
-            SLEEP(600);
+            SLEEP(700);
             
             //time increments
             globalTime++;
@@ -341,7 +344,7 @@ void processing::inExecutionProgram()
             }
         }
 
-        if(inExecutionP->getServiceTime() == inExecutionP->getETA()){
+        if(inExecutionP->getServiceTime() == inExecutionP->getETA() || inExecutionP->getResult() == "ERROR"){
             //if it was sent to blocked we don't add it to the done vector and
             // pass onto the next program
             inExecutionP->updateDoneState(true);
