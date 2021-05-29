@@ -4,8 +4,8 @@ void processing::getNumberOfPrograms()
 {
     short entryNumberOfPrograms;
     
+    //We ask the user the number of programs to be simulated and the quantum
     do{
-        //We ask the user the number of programs to be simulated and the quantum
         std::cout << "Ingrese el numero de programas a procesar: ";
         std::cin >> entryNumberOfPrograms;
     }while(entryNumberOfPrograms < 1);
@@ -22,7 +22,6 @@ void processing::createProgramEntry(short programs)
 {
     bool divisionByZero;
     short number1, number2, kindOfOperation,result;
-
     std::string operation;
     
     //temporal program and vector for the capture
@@ -31,7 +30,6 @@ void processing::createProgramEntry(short programs)
     for(short i(0); i < programs; ++i){
         
         temporalProgram = new program();
-        
         //ETA will be between 6 & 15
         temporalProgram->setETA((rand()%10)+6);
         //ID will be the index
@@ -138,7 +136,6 @@ void processing::displayProccessing()
 
         //we restart the interruption flag
         interruption = false;
-
         //control variable to know if a new program can enter to the system
         getNewProgram = (readyProgramsV.size() + blockedProgramsV.size() < newProgramsBatchSize-1) && !newProgramsV.empty();
 
@@ -229,10 +226,8 @@ void processing::inExecutionProgram()
             //parts of the screen that need to be updated every second
             headTitle();
             blockedProgramsQueue();
-
             //pause (in miliseconds)
             SLEEP(700);
-            
             //time increments
             globalTime++;
 
@@ -488,8 +483,7 @@ void processing::printData()
 
 void processing::finishedProgram()
 {
-    CLEAR;
-    
+    CLEAR;    
     for(short i(0); i<doneProgramV.size(); ++i){
         auxP = doneProgramV[i];
         printData();
