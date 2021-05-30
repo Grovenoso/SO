@@ -167,30 +167,37 @@ void processing::headTitle()
 {
     //number of new programs
     GOTOXY(0,0);
-    std::cout << "Procesos nuevos: " << newProgramsV.size();
-    
+    std::cout << "Procesos nuevos: " << YELLOW << newProgramsV.size() << RESET;
+
     //total number of programs
     GOTOXY(25,0);
-    std::cout << "Numero total de procesos: " << numberOfPrograms;
+    std::cout << "Numero total de procesos: " << YELLOW << numberOfPrograms << RESET;
 
     //quantum value
     GOTOXY(60, 0);
-    std::cout << "Quantum: " << quantumValue;
+    std::cout << "Quantum: " << YELLOW << quantumValue << RESET;
 
     //global time count
     GOTOXY(75,0);
-    std::cout << "Contador global: " << globalTime;
+    std::cout << "Contador global: " << YELLOW << globalTime << RESET;
     
     //execution state
     GOTOXY(100, 0);
-    std::cout << "Estado: " << (execState ? "en ejecucion":"pausa       ");
+    std::cout << "Estado: ";
+    
+    if(execState)
+    std::cout << YELLOW << "en ejecucion";
+    else
+        std::cout << RED << "pausa       "; 
+    
+    std::cout << RESET;
 }
 
 void processing::onQueuePrograms()
 {
     //ready programs
     GOTOXY(0, 3);
-    std::cout << "Procesos listos";
+    std::cout << GREEN << "Procesos listos" << RESET;
 
     for (short i = 0; i < readyProgramsV.size(); ++i){
         std::cout << std::endl
@@ -210,17 +217,17 @@ void processing::inExecutionProgram()
         
         for (short i(0); i < timeRemaining; ++i){
             GOTOXY(25, 3);
-            std::cout << "Programa en ejecucion";
+            std::cout << YELLOW << "Programa en ejecucion" << RESET;
             GOTOXY(25, 4);
-            std::cout << "ID: --";
+            std::cout << "ID:" << YELLOW << " --" << RESET;
             GOTOXY(25, 5);
-            std::cout << "OP: -----";
+            std::cout << "OP:" << YELLOW << " -----" << RESET;
             GOTOXY(25, 6);
-            std::cout << "TME: ---";
+            std::cout << "TME:" << YELLOW << " ---" << RESET;
             GOTOXY(25, 7);
-            std::cout << "TT: ---";
+            std::cout << "TT:" << YELLOW << " ---" << RESET;
             GOTOXY(25, 8);
-            std::cout << "TRE: ---";
+            std::cout << "TRE:" << YELLOW << " ---" << RESET;
             interruption = true;
 
             //parts of the screen that need to be updated every second
@@ -243,7 +250,7 @@ void processing::inExecutionProgram()
             inExecutionP->setState("en ejecucion");
             //printing all program data
             GOTOXY(25, 3);
-            std::cout << "Programa en ejecucion";
+            std::cout << YELLOW << "Programa en ejecucion" << RESET;
             GOTOXY(25, 4);
             std::cout << "ID: " << inExecutionP->getID();
             GOTOXY(25, 5);
@@ -258,7 +265,7 @@ void processing::inExecutionProgram()
             if (inExecutionP->getETA() - i < 10)
                 std::cout << "0";
             std::cout << inExecutionP->getETA() - i;
-            
+
             GOTOXY(25, 9);
             std::cout << "Q: "; 
             if (inExecutionP->getQuantum() < 10)
@@ -358,7 +365,7 @@ void processing::inExecutionProgram()
 void processing::blockedProgramsQueue()
 {
     GOTOXY(25,11);
-    std::cout << "Programas bloqueados";
+    std::cout << RED << "Programas bloqueados" << RESET;
     
     for(short i(0); i<blockedProgramsV.size(); ++i){
         GOTOXY(25,(i*3)+13);
@@ -393,7 +400,7 @@ void processing::blockedProgramsQueue()
 void processing::donePrograms()
 {
     GOTOXY(60, 3);
-    std::cout << "Programas terminados";
+    std::cout << CYAN << "Programas terminados" << RESET;
 
     for(short i(0); i<doneProgramV.size(); ++i){
         GOTOXY(60, (i*4)+4);
@@ -469,8 +476,21 @@ void processing::bcp()
 void processing::printData()
 {
     std::cout << "ID: " << auxP->getID() << std::endl
-              << "Estado: " << auxP->getState() << std::endl
-              << "OP: " << auxP->getOperation() << std:: endl
+              << "Estado: "; 
+            
+    if (auxP->getState() == "nuevo")
+        std::cout << MAGENTA;
+    else if (auxP->getState() == "listo")
+        std::cout << GREEN;
+    else if (auxP->getState() == "en ejecucion")
+        std::cout << YELLOW;
+    else if (auxP->getState() == "bloqueado")
+        std::cout << RED;
+    else
+        std::cout << CYAN;
+        
+    std::cout << auxP->getState() <<  RESET << std::endl
+              << "OP: " << auxP->getOperation() << std:: endl          
               << "R: " << (auxP->getDoneState() ? auxP->getResult() : "-1") << std::endl
               << "TME: " << auxP->getETA() << std::endl
               << "T Llegada: " << auxP->getArrivalTime() << std::endl
