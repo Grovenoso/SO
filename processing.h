@@ -23,13 +23,17 @@ TERMINADO
 class processing
 {
     public:
-        processing(){globalTime=0;
-        execState = 1;
-        newProgramsBatchSize = 5;
-        interruption= false;
-        execState = true;
-        getNewProgram = false;
-        numberOfPrograms = 0;}
+        processing(){
+            globalTime=0;
+            execState = 1;
+            newProgramsBatchSize = 5;
+            interruption= false;
+            execState = true;
+            getNewProgram = false;
+            numberOfPrograms = 0;
+
+            srand(time(NULL));
+        }
 
         //creates the programs
         void createProgramEntry(short programs);
