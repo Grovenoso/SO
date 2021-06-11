@@ -3,22 +3,11 @@
 
 #include "program.h"
 
-#define RED "\x1b[31m"
-#define GREEN "\x1b[32m"
-#define YELLOW "\x1b[33m"
-#define BLUE "\x1b[34m"
-#define MAGENTA "\x1b[35m"
-#define CYAN "\x1b[36m"
-#define RESET "\x1b[0m"
-
-/*
-Processes states
-NUEVO
-LISTO
-EN EJECUCIÓN
-BLOQUEADO
-TERMINADO
-*/
+struct frame{
+    short freeSpaces = 4;
+    std::string usage = "NA";
+    std::string state = "Libre";
+};
 
 class processing
 {
@@ -26,11 +15,18 @@ class processing
         processing(){
             globalTime=0;
             execState = 1;
-            newProgramsBatchSize = 5;
             interruption= false;
             execState = true;
             getNewProgram = false;
             numberOfPrograms = 0;
+            freeMemory = 168;
+            frameSize = 4;
+
+            for(int i(0); i<3; ++i){
+                memory[42+i].freeSpaces = 0;
+                memory[42+i].usage = "SO";
+                memory[42+i].state = "Reservado";
+            }
 
             srand(time(NULL));
         }
@@ -77,15 +73,17 @@ class processing
         //BCP function that shows all program data in the middle of execution
         void bcp();
 
+        //simple paging functions
+        void updateMemoryState();
+        void showMemory();
+        void show2();
+
         //function that shows all programs data and its calculated times
         void finishedProgram();
         void printData();
 
-    private:
-        //control variables
-        short newProgramsBatchSize;
-            
-            //boolean to cut the execution in case of interruption
+    private:            
+        //boolean to cut the execution in case of interruption
         bool interruption;
 
         //number of programs that'll be created
@@ -93,24 +91,27 @@ class processing
 
         //value of the quantum
         short quantumValue;
-            
-            //indexes
-        short inBatchProgramNumber;
         
-            //times
+        //times
         short globalTime;
 
-            //execution state
+        //free memory space
+        short freeMemory;
+        short frameSize;
+
+        //execution state
         bool execState;
         bool getNewProgram;
 
-            //program vectors
+        //program vectors
         std::vector<program *> newProgramsV;
         std::vector<program *> readyProgramsV;
         std::vector<program *> doneProgramV;
         std::vector<program *> blockedProgramsV;
 
-            //auxiliary programs
+        frame memory[45];
+
+        //auxiliary programs
         program *inExecutionP, *auxP;
 };
 

@@ -36,6 +36,8 @@ void processing::createProgramEntry(short programs)
         temporalProgram->setID(std::to_string(numberOfPrograms+1));
         //we set the quantum
         temporalProgram->setQuantum(quantumValue);
+        //weight will be between 5 & 25
+        temporalProgram->setWeight((rand()%21)+5);
 
         do{
             //empties the operation string and resets boolean
@@ -97,6 +99,7 @@ void processing::createProgramEntry(short programs)
         numberOfPrograms++;
     }
     CLEAR;
+    updateOnQueuePrograms();
 }
 
 void processing::clearScreen()
@@ -110,10 +113,99 @@ void processing::clearScreen()
 
 void processing::updateOnQueuePrograms()
 {
-    while ((readyProgramsV.size()+blockedProgramsV.size()+1) < 5 && !newProgramsV.empty()){
-        newProgramsV[0]->setState("listo");
-        readyProgramsV.push_back(newProgramsV[0]);
-        newProgramsV.erase(newProgramsV.begin());
+    short programWeight;
+    
+    while(freeMemory > 0 && !newProgramsV.empty()){
+        
+        if(freeMemory >= newProgramsV[0]->getWeight()){
+            programWeight = newProgramsV[0]->getWeight();
+            
+            for(int i(0); i<43 && programWeight; ++i){
+                if(memory[i].freeSpaces == frameSize){
+                    if(programWeight >= frameSize){
+                        memory[i].freeSpaces = 0;
+                        programWeight -= frameSize;
+                    }
+                    else{
+                        memory[i].freeSpaces = frameSize - programWeight;                    
+                        programWeight = 0;
+                    }
+                    
+                    memory[i].state = "Listo";
+                    memory[i].usage = newProgramsV[0]->getID();
+                    freeMemory -= 4;
+                }
+            }
+            newProgramsV[0]->setState("listo");
+            readyProgramsV.push_back(newProgramsV[0]);
+            newProgramsV.erase(newProgramsV.begin());
+        }
+
+        else
+            return;
+    }
+}
+
+void processing::updateMemoryState()
+{
+    for(int i(0); i<43; ++i){
+        if(!doneProgramV.empty())
+            if(memory[i].usage == doneProgramV.back()->getID()){
+                memory[i].freeSpaces = frameSize;
+                memory[i].usage = "NA";
+                memory[i].state = "Libre";
+                freeMemory += frameSize;
+            }
+        if (!blockedProgramsV.empty())
+            if (memory[i].usage == blockedProgramsV.back()->getID())
+                memory[i].state = "Bloqueado";
+
+        if (memory[i].usage == inExecutionP->getID())
+            memory[i].state = "En ejecucion";
+        
+        for(int j(0); j<readyProgramsV.size(); ++j){
+            if (memory[i].usage == readyProgramsV[j]->getID() && memory[i].state != "Listo")
+                memory[i].state = "Listo";
+        }
+    }
+}
+
+void processing::showMemory()
+{
+    CLEAR;
+    GOTOXY(30,0);
+    std::cout << YELLOW << " -- Tabla de paginas -- " << RESET;
+    GOTOXY(25, 2);
+    std::cout << " # " << " Espacio " << " Proceso " << " Estado ";
+    for(int i(0); i<45; ++i){
+        // #
+        GOTOXY(25, i+3);
+        std::cout << " " << i;
+        
+        // Espacio
+        for(int j(0); j < frameSize - memory[i].freeSpaces; ++j){
+            GOTOXY(30+j, i+3);
+            std::cout << CYAN << "O" << RESET;
+        }
+        for (int j(0); j < memory[i].freeSpaces; ++j){
+            GOTOXY(30 + j + (frameSize - memory[i].freeSpaces), i + 3);
+            std::cout << YELLOW << "-" << RESET;
+        }
+        
+        //Proceso
+        GOTOXY(41, i + 3);
+        std::cout << memory[i].usage;
+
+        //Estado
+        GOTOXY(46, i + 3);
+        if (memory[i].state == "Bloqueado")
+            std::cout << RED << memory[i].state << RESET;
+        else if(memory[i].state == "En ejecucion")
+            std::cout << GREEN << memory[i].state << RESET;
+        else if(memory[i].state == "Listo")
+            std::cout << MAGENTA << memory[i].state << RESET;
+        else
+            std::cout << YELLOW << memory[i].state << RESET;
     }
 }
 
@@ -132,24 +224,22 @@ void processing::displayProccessing()
             //as soon as we get the program in the front of the queue we get it off it
             inExecutionP = readyProgramsV[0];
             readyProgramsV.erase(readyProgramsV.begin());
+            updateMemoryState();
         }
 
         //we restart the interruption flag
         interruption = false;
-        //control variable to know if a new program can enter to the system
-        getNewProgram = (readyProgramsV.size() + blockedProgramsV.size() < newProgramsBatchSize-1) && !newProgramsV.empty();
 
         //we evaluate if there's memory space for a new program to get in
-        if (getNewProgram){
-            newProgramsV[0]->setState("listo");
-            readyProgramsV.push_back(newProgramsV[0]);
-            newProgramsV.erase(newProgramsV.begin());
+        if (freeMemory > 0){
+            updateOnQueuePrograms();
         }
 
         //we update this printings only on a change of state
         onQueuePrograms();
         donePrograms();
         inExecutionProgram();
+        updateMemoryState();
         CLEAR;
     }
     
@@ -169,8 +259,14 @@ void processing::headTitle()
     GOTOXY(0,0);
     std::cout << "Procesos nuevos: " << YELLOW << newProgramsV.size() << RESET;
 
+    //next program on queue
+    GOTOXY(0,3);
+    std::cout << MAGENTA << "Siguiente por entrar" << RESET << std::endl;
+    std::cout << "ID: " << (newProgramsV.empty() ? "--" : newProgramsV[0]->getID()) << std::endl
+              << "Peso: " << (newProgramsV.empty() ? "--" : std::to_string(newProgramsV[0]->getWeight()));
+
     //total number of programs
-    GOTOXY(25,0);
+    GOTOXY(25, 0);
     std::cout << "Numero total de procesos: " << YELLOW << numberOfPrograms << RESET;
 
     //quantum value
@@ -196,7 +292,7 @@ void processing::headTitle()
 void processing::onQueuePrograms()
 {
     //ready programs
-    GOTOXY(0, 3);
+    GOTOXY(0, 7);
     std::cout << GREEN << "Procesos listos" << RESET;
 
     for (short i = 0; i < readyProgramsV.size(); ++i){
@@ -275,7 +371,7 @@ void processing::inExecutionProgram()
             //keyboard listening for quick actions
             if (kbhit()){
                 switch (getch()){
-                case 'p':
+                case 'p': case 'P':
                     //if paused the execution state and its printing is updated
                     execState = false;
                     headTitle();
@@ -287,8 +383,8 @@ void processing::inExecutionProgram()
                     headTitle();
                     break;
 
-                case 'e':
-                    //if the e key is pressed the control index 
+                case 'e': case 'E':
+                    //if the e key is pressed the control index
                     //and program result are updated
                     i = inExecutionP->getETA() + 1;
                     inExecutionP->setResult("ERROR");
@@ -296,28 +392,36 @@ void processing::inExecutionProgram()
                     updateOnQueuePrograms();
                     break;
 
-                case 'i':
+                    case 'i': case 'I':
                     //data and program is set to the blocked vector
                     inExecutionP->setBlockedTime(5);
                     inExecutionP->setState("bloqueado");
                     inExecutionP->setQuantum(quantumValue);
                     blockedProgramsV.push_back(inExecutionP);
+                    updateMemoryState();
                     updateOnQueuePrograms();
 
                     //interruption flag is activated
                     interruption = true;                
                     break;
                 
-                case 'n':
+                case 'n': case 'N':
                     //create a new program
                     createProgramEntry(1);
                     updateOnQueuePrograms();
                     clearScreen();
                     break;
 
-                case 'b':
+                case 'b': case 'B':
                     bcp();
                     while (!kbhit() && getch() != 'c'){}
+                    clearScreen();
+                    break;
+
+                case 'a': case 'A':
+                    updateMemoryState();
+                    showMemory(); 
+                    while (!kbhit() && getch() != 'c') {}
                     clearScreen();
                     break;
                 }

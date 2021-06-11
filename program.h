@@ -14,6 +14,14 @@
 #define HIDECURSOR printf("\e[?25l");
 #define SHOWCURSOR printf("\e[?25h");
 
+#define RED "\x1b[31m"
+#define GREEN "\x1b[32m"
+#define YELLOW "\x1b[33m"
+#define BLUE "\x1b[34m"
+#define MAGENTA "\x1b[35m"
+#define CYAN "\x1b[36m"
+#define RESET "\x1b[0m"
+
 #include <iostream>
 #include <cstdio>
 #include <chrono>
@@ -44,6 +52,7 @@ class program
         void setID(std::string data) {ID = data;};
         void setResult(std::string data) {result = data;};
         void setState(std::string data) {state = data;};
+        void setWeight(short data) {weight = data;};
 
         //setters for all times
         void setQuantum(short data) {quantum = data;};
@@ -63,6 +72,7 @@ class program
         std::string getID() {return ID;};
         std::string getResult() {return result;};
         std::string getState() {return state;};
+        short getWeight() {return weight;};
 
         //getters for all times
         short getQuantum() {return quantum;};
@@ -79,7 +89,7 @@ class program
 
     private:
         std::string name, operation, ID, result, state;
-        short num1, num2, quantum;
+        short num1, num2, quantum, weight;
         bool done;
         
         //All times
