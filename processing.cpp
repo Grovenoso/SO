@@ -197,7 +197,7 @@ void processing::showMemory()
         std::cout << memory[i].usage;
 
         //Estado
-        GOTOXY(46, i + 3);
+        GOTOXY(47, i + 3);
         if (memory[i].state == "Bloqueado")
             std::cout << RED << memory[i].state << RESET;
         else if(memory[i].state == "En ejecucion")
