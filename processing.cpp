@@ -484,16 +484,7 @@ void processing::blockedProgramsQueue()
             blockedProgramsV.erase(blockedProgramsV.begin()+i);
             
             onQueuePrograms();
-            //when a program stops beign blocked
-            //the blocked programs queue the head title
-            //the ready programs queue and potentially the programs that are done
-            //should be updated
-            for(short j(0); j<blockedProgramsV.size()+1; ++j){
-                GOTOXY(25, (j * 3) + 13);
-                std::cout << "      ";
-                GOTOXY(25, (j * 3) + 14);
-                std::cout << "      ";
-            }
+            clearScreen();
         }
         
         else
