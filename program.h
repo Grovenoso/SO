@@ -31,6 +31,7 @@
 #include <ctime>
 #include <string>
 #include <conio.h>
+#include <fstream>
 
 class program
 {
@@ -52,7 +53,7 @@ class program
         void setID(std::string data) {ID = data;};
         void setResult(std::string data) {result = data;};
         void setState(std::string data) {state = data;};
-        void setWeight(short data) {weight = data;};
+        void setWeight(int data) {weight = data;};
 
         //setters for all times
         void setQuantum(short data) {quantum = data;};
@@ -72,7 +73,7 @@ class program
         std::string getID() {return ID;};
         std::string getResult() {return result;};
         std::string getState() {return state;};
-        short getWeight() {return weight;};
+        int getWeight() {return weight;};
 
         //getters for all times
         short getQuantum() {return quantum;};
@@ -89,7 +90,8 @@ class program
 
     private:
         std::string name, operation, ID, result, state;
-        short num1, num2, quantum, weight;
+        short num1, num2, quantum;
+        int weight;
         bool done;
         
         //All times

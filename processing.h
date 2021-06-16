@@ -18,6 +18,7 @@ class processing
             interruption= false;
             execState = true;
             getNewProgram = false;
+            suspendedBack = false;
             numberOfPrograms = 0;
             freeMemory = 168;
             frameSize = 4;
@@ -78,6 +79,11 @@ class processing
         void showMemory();
         void show2();
 
+        //suspended programs
+        void showSuspended();
+        void writeToDisk(program* p);
+        void readFromDisk();
+
         //function that shows all programs data and its calculated times
         void finishedProgram();
         void printData();
@@ -106,10 +112,15 @@ class processing
         //program vectors
         std::vector<program *> newProgramsV;
         std::vector<program *> readyProgramsV;
-        std::vector<program *> doneProgramV;
+        std::vector<program *> doneProgramsV;
         std::vector<program *> blockedProgramsV;
+        std::vector<program *> suspendedProgramsV;
 
+        //system memory
         frame memory[45];
+
+        //boolean to prioritize the entrance of a suspended program than a new one
+        bool suspendedBack;
 
         //auxiliary programs
         program *inExecutionP, *auxP;

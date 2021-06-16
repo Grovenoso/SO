@@ -109,13 +109,43 @@ void processing::clearScreen()
     onQueuePrograms();
     blockedProgramsQueue();
     donePrograms();
+    showSuspended();
 }
 
 void processing::updateOnQueuePrograms()
 {
-    short programWeight;
+    int programWeight;
     
-    while(freeMemory > 0 && !newProgramsV.empty()){
+    while(freeMemory > 0 && suspendedBack){
+        if(freeMemory >= suspendedProgramsV[0]->getWeight()){
+            programWeight = suspendedProgramsV[0]->getWeight();
+            
+            for(int i(0); i<43 && programWeight; ++i){
+                if(memory[i].freeSpaces == frameSize){
+                    if(programWeight >= frameSize){
+                        memory[i].freeSpaces = 0;
+                        programWeight -= frameSize;
+                    }
+                    else{
+                        memory[i].freeSpaces = frameSize - programWeight;                    
+                        programWeight = 0;
+                    }
+                    
+                    memory[i].state = "Bloqueado";
+                    memory[i].usage = suspendedProgramsV[0]->getID();
+                    freeMemory -= 4;
+                }
+            }
+            suspendedProgramsV[0]->setState("bloqueado");
+            blockedProgramsV.push_back(suspendedProgramsV[0]);
+            suspendedProgramsV.erase(suspendedProgramsV.begin()+0);
+            suspendedBack = false;
+        }
+        else
+            break;
+    }
+
+    while(freeMemory > 0 && !newProgramsV.empty() && !suspendedBack){
         
         if(freeMemory >= newProgramsV[0]->getWeight()){
             programWeight = newProgramsV[0]->getWeight();
@@ -138,7 +168,7 @@ void processing::updateOnQueuePrograms()
             }
             newProgramsV[0]->setState("listo");
             readyProgramsV.push_back(newProgramsV[0]);
-            newProgramsV.erase(newProgramsV.begin());
+            newProgramsV.erase(newProgramsV.begin()+0);
         }
 
         else
@@ -149,13 +179,21 @@ void processing::updateOnQueuePrograms()
 void processing::updateMemoryState()
 {
     for(int i(0); i<43; ++i){
-        if(!doneProgramV.empty())
-            if(memory[i].usage == doneProgramV.back()->getID()){
+        if(!doneProgramsV.empty())
+            if(memory[i].usage == doneProgramsV.back()->getID()){
                 memory[i].freeSpaces = frameSize;
                 memory[i].usage = "NA";
                 memory[i].state = "Libre";
                 freeMemory += frameSize;
             }
+        if(!suspendedProgramsV.empty())
+            if(memory[i].usage == suspendedProgramsV.back()->getID()){
+                memory[i].freeSpaces = frameSize;
+                memory[i].usage = "NA";
+                memory[i].state = "Libre";
+                freeMemory += frameSize;
+            }
+
         if (!blockedProgramsV.empty())
             if (memory[i].usage == blockedProgramsV.back()->getID())
                 memory[i].state = "Bloqueado";
@@ -215,7 +253,7 @@ void processing::displayProccessing()
     updateOnQueuePrograms();
     
     //it will keep going on until the new programs queue and the ready programs are executed
-    while (doneProgramV.size() != numberOfPrograms){
+    while (doneProgramsV.size() != numberOfPrograms){
         
         //when a program enters to the memory the arrival hour has to be updated
         updateArrivalTime();
@@ -225,6 +263,9 @@ void processing::displayProccessing()
             inExecutionP = readyProgramsV[0];
             readyProgramsV.erase(readyProgramsV.begin());
             updateMemoryState();
+        }
+        else{
+            inExecutionP = NULL;
         }
 
         //we restart the interruption flag
@@ -238,8 +279,8 @@ void processing::displayProccessing()
         //we update this printings only on a change of state
         onQueuePrograms();
         donePrograms();
+        showSuspended();
         inExecutionProgram();
-        updateMemoryState();
         CLEAR;
     }
     
@@ -308,163 +349,258 @@ void processing::onQueuePrograms()
 
 void processing::inExecutionProgram()
 {
-    if(doneProgramV.size() + blockedProgramsV.size() == numberOfPrograms){
-        short timeRemaining = blockedProgramsV.front()->getBlockedTime() + 1;
-        
-        for (short i(0); i < timeRemaining; ++i){
-            GOTOXY(25, 3);
-            std::cout << YELLOW << "Programa en ejecucion" << RESET;
-            GOTOXY(25, 4);
-            std::cout << "ID:" << YELLOW << " --" << RESET;
-            GOTOXY(25, 5);
-            std::cout << "OP:" << YELLOW << " -----" << RESET;
-            GOTOXY(25, 6);
-            std::cout << "TME:" << YELLOW << " ---" << RESET;
-            GOTOXY(25, 7);
-            std::cout << "TT:" << YELLOW << " ---" << RESET;
-            GOTOXY(25, 8);
-            std::cout << "TRE:" << YELLOW << " ---" << RESET;
-            interruption = true;
+    while(inExecutionP == NULL){
+        GOTOXY(25, 3);
+        std::cout << YELLOW << "Programa en ejecucion" << RESET;
+        GOTOXY(25, 4);
+        std::cout << "ID:" << YELLOW << " --" << RESET;
+        GOTOXY(25, 5);
+        std::cout << "OP:" << YELLOW << " -----" << RESET;
+        GOTOXY(25, 6);
+        std::cout << "TME:" << YELLOW << " ---" << RESET;
+        GOTOXY(25, 7);
+        std::cout << "TT:" << YELLOW << " ---" << RESET;
+        GOTOXY(25, 8);
+        std::cout << "TRE:" << YELLOW << " ---" << RESET;
+        interruption = true;
 
-            //parts of the screen that need to be updated every second
-            headTitle();
-            blockedProgramsQueue();
-            //pause (in miliseconds)
-            SLEEP(700);
-            //time increments
-            globalTime++;
+        //keyboard listening for quick actions
+        if (kbhit()){
+            switch (getch()){
+            case 'p': case 'P':
+                //if paused the execution state and its printing is updated
+                execState = false;
+                headTitle();
 
-        }
-    }
-    else{
-        for (short i=inExecutionP->getServiceTime(); i < inExecutionP->getETA(); ++i){        
-
-            //updating response time
-            if(!inExecutionP->getServiceTime())
-                updateResponseTime();
+                //when the execution state is continued the state
+                //and its printing are updated
+                while (!kbhit() && getch() != 'c'){}
+                execState = true;
+                headTitle();
+                break;
             
-            inExecutionP->setState("en ejecucion");
-            //printing all program data
-            GOTOXY(25, 3);
-            std::cout << YELLOW << "Programa en ejecucion" << RESET;
-            GOTOXY(25, 4);
-            std::cout << "ID: " << inExecutionP->getID();
-            GOTOXY(25, 5);
-            std::cout << "OP: " << inExecutionP->getOperation();
-            GOTOXY(25, 6);
-            std::cout << "TME: " << inExecutionP->getETA();
-            GOTOXY(25, 7);
-            std::cout << "TT: " << inExecutionP->getServiceTime();
+            case 'n': case 'N':
+                //create a new program
+                createProgramEntry(1);
+                updateOnQueuePrograms();
+                clearScreen();
+                break;
+
+            case 'b': case 'B':
+                bcp();
+                while (!kbhit() && getch() != 'c'){}
+                clearScreen();
+                break;
+
+            case 'a': case 'A':
+                updateMemoryState();
+                showMemory(); 
+                while (!kbhit() && getch() != 'c'){}
+                clearScreen();
+                break;
             
-            GOTOXY(25, 8);
-            std::cout << "TRE: ";
-            if (inExecutionP->getETA() - i < 10)
-                std::cout << "0";
-            std::cout << inExecutionP->getETA() - i;
-
-            GOTOXY(25, 9);
-            std::cout << "Q: "; 
-            if (inExecutionP->getQuantum() < 10)
-                std::cout << "0";
-            std::cout << inExecutionP->getQuantum();
-
-            //keyboard listening for quick actions
-            if (kbhit()){
-                switch (getch()){
-                case 'p': case 'P':
-                    //if paused the execution state and its printing is updated
-                    execState = false;
-                    headTitle();
-
-                    //when the execution state is continued the state
-                    //and its printing are updated
-                    while (!kbhit() && getch() != 'c'){}
-                    execState = true;
-                    headTitle();
-                    break;
-
-                case 'e': case 'E':
-                    //if the e key is pressed the control index
-                    //and program result are updated
-                    i = inExecutionP->getETA() + 1;
-                    inExecutionP->setResult("ERROR");
-                    updateFinalizationHour();
-                    updateOnQueuePrograms();
-                    break;
-
-                    case 'i': case 'I':
-                    //data and program is set to the blocked vector
-                    inExecutionP->setBlockedTime(5);
-                    inExecutionP->setState("bloqueado");
-                    inExecutionP->setQuantum(quantumValue);
-                    blockedProgramsV.push_back(inExecutionP);
-                    updateMemoryState();
-                    updateOnQueuePrograms();
-
-                    //interruption flag is activated
-                    interruption = true;                
-                    break;
+            case 's': case 'S':
+                //change its state, sent to suspended, written to disk
+                blockedProgramsV[0]->setState("suspendido");
+                suspendedProgramsV.push_back(blockedProgramsV[0]);
+                writeToDisk(blockedProgramsV[0]);
                 
-                case 'n': case 'N':
-                    //create a new program
-                    createProgramEntry(1);
-                    updateOnQueuePrograms();
-                    clearScreen();
-                    break;
+                //erase it from blocked and update the queues
+                blockedProgramsV.erase(blockedProgramsV.begin());
+                clearScreen();
+                break;
 
-                case 'b': case 'B':
-                    bcp();
-                    while (!kbhit() && getch() != 'c'){}
-                    clearScreen();
-                    break;
+            case 'r': case 'R':
+                //we take back the program from the disk
+                readFromDisk();
+                auxP = suspendedProgramsV[0];
+                auxP->setBlockedTime(5);
+                suspendedBack = true;
+                updateOnQueuePrograms();
 
-                case 'a': case 'A':
-                    updateMemoryState();
-                    showMemory(); 
-                    while (!kbhit() && getch() != 'c') {}
-                    clearScreen();
-                    break;
-                }
-            }
-            if(interruption)
-                return;
+                //update queue's printing
+                showSuspended();
+                blockedProgramsQueue();
+                break;
 
-            //parts of the screen that need to be updated every second
-            headTitle();
-            blockedProgramsQueue();
-
-            //pause (in miliseconds)
-            SLEEP(700);
-            
-            //time increments
-            globalTime++;
-            inExecutionP->setServiceTime(inExecutionP->getServiceTime() + 1);
-            updateOnHoldTime();
-            
-            //quantum decreases
-            inExecutionP->setQuantum(inExecutionP->getQuantum()-1);
-
-            if(inExecutionP->getQuantum() < 1){
-                inExecutionP->setQuantum(quantumValue);
+            default:
                 break;
             }
         }
 
-        if(inExecutionP->getServiceTime() == inExecutionP->getETA() || inExecutionP->getResult() == "ERROR"){
-            //if it was sent to blocked we don't add it to the done vector and
-            // pass onto the next program
-            inExecutionP->updateDoneState(true);
-            inExecutionP->setState("terminado");
-            doneProgramV.push_back(inExecutionP);
-            updateFinalizationHour();
+        //parts of the screen that need to be updated every second
+        headTitle();
+        blockedProgramsQueue();
+
+        //pause (in miliseconds)
+        SLEEP(700);
+        //time increments
+        globalTime++;
+        
+        //each second we check if there's a new program to execute
+        if(!readyProgramsV.empty() || !newProgramsV.empty())
+            return;
+    }
+
+    for (short i=inExecutionP->getServiceTime(); i < inExecutionP->getETA(); ++i){        
+
+        //updating response time
+        if(!inExecutionP->getServiceTime())
+            updateResponseTime();
+        
+        inExecutionP->setState("en ejecucion");
+        //printing all program data
+        GOTOXY(25, 3);
+        std::cout << YELLOW << "Programa en ejecucion" << RESET;
+        GOTOXY(25, 4);
+        std::cout << "ID: " << inExecutionP->getID();
+        GOTOXY(25, 5);
+        std::cout << "OP: " << inExecutionP->getOperation();
+        GOTOXY(25, 6);
+        std::cout << "TME: " << inExecutionP->getETA();
+        GOTOXY(25, 7);
+        std::cout << "TT: " << inExecutionP->getServiceTime();
+        
+        GOTOXY(25, 8);
+        std::cout << "TRE: ";
+        if (inExecutionP->getETA() - i < 10)
+            std::cout << "0";
+        std::cout << inExecutionP->getETA() - i;
+
+        GOTOXY(25, 9);
+        std::cout << "Q: "; 
+        if (inExecutionP->getQuantum() < 10)
+            std::cout << "0";
+        std::cout << inExecutionP->getQuantum();
+
+        //keyboard listening for quick actions
+        if (kbhit()){
+            switch (getch()){
+            case 'p': case 'P':
+                //if paused the execution state and its printing is updated
+                execState = false;
+                headTitle();
+
+                //when the execution state is continued the state
+                //and its printing are updated
+                while (!kbhit() && getch() != 'c'){}
+                execState = true;
+                headTitle();
+                break;
+
+            case 'e': case 'E':
+                //if the e key is pressed the control index
+                //and program result are updated
+                i = inExecutionP->getETA() + 1;
+                inExecutionP->setResult("ERROR");
+                updateFinalizationHour();
+                updateOnQueuePrograms();
+                break;
+
+            case 'i': case 'I':
+                //data and program is set to the blocked vector
+                inExecutionP->setBlockedTime(5);
+                inExecutionP->setState("bloqueado");
+                inExecutionP->setQuantum(quantumValue);
+                blockedProgramsV.push_back(inExecutionP);
+                updateMemoryState();
+
+                //interruption flag is activated
+                interruption = true;                
+                break;
+            
+            case 'n': case 'N':
+                //create a new program
+                createProgramEntry(1);
+                updateOnQueuePrograms();
+                clearScreen();
+                break;
+
+            case 'b': case 'B':
+                bcp();
+                while (!kbhit() && getch() != 'c'){}
+                clearScreen();
+                break;
+
+            case 'a': case 'A':
+                updateMemoryState();
+                showMemory(); 
+                while (!kbhit() && getch() != 'c'){}
+                clearScreen();
+                break;
+            
+            case 's': case 'S':
+                //change its state, sent to suspended, written to disk
+                blockedProgramsV[0]->setState("suspendido");
+                suspendedProgramsV.push_back(blockedProgramsV[0]);
+                writeToDisk(blockedProgramsV[0]);
+                
+                //erase it from blocked and update the queues
+                blockedProgramsV.erase(blockedProgramsV.begin()+0);
+                updateMemoryState();
+
+                //we check if there's the space for a new one
+                updateOnQueuePrograms();
+                updateMemoryState();
+                clearScreen();
+                break;
+
+            case 'r': case 'R':
+                //we take back the program from the disk
+                readFromDisk();
+                auxP = suspendedProgramsV[0];
+                auxP->setBlockedTime(5);
+                suspendedBack = true;
+                updateOnQueuePrograms();
+
+                //update queue's printing
+                showSuspended();
+                blockedProgramsQueue();
+                break;
+            
+            default:
+                break;
+            }
         }
-        else{
-            inExecutionP->updateDoneState(false);
-            inExecutionP->setState("listo");
-            readyProgramsV.push_back(inExecutionP);
+        if(interruption)
+            return;
+
+        //parts of the screen that need to be updated every second
+        headTitle();
+        blockedProgramsQueue();
+
+        //pause (in miliseconds)
+        SLEEP(700);
+        
+        //time increments
+        globalTime++;
+        inExecutionP->setServiceTime(inExecutionP->getServiceTime() + 1);
+        updateOnHoldTime();
+        
+        //quantum decreases
+        inExecutionP->setQuantum(inExecutionP->getQuantum()-1);
+
+        if(inExecutionP->getQuantum() < 1){
+            inExecutionP->setQuantum(quantumValue);
+            break;
         }
     }
+
+    if(inExecutionP->getServiceTime() == inExecutionP->getETA() || inExecutionP->getResult() == "ERROR"){
+        //if it was sent to blocked we don't add it to the done vector and
+        // pass onto the next program
+        inExecutionP->updateDoneState(true);
+        inExecutionP->setState("terminado");
+        doneProgramsV.push_back(inExecutionP);
+        updateFinalizationHour();
+    }
+    else{
+        inExecutionP->updateDoneState(false);
+        inExecutionP->setState("listo");
+        readyProgramsV.push_back(inExecutionP);
+    }
 }
+
 
 void processing::blockedProgramsQueue()
 {
@@ -497,13 +633,13 @@ void processing::donePrograms()
     GOTOXY(60, 3);
     std::cout << CYAN << "Programas terminados" << RESET;
 
-    for(short i(0); i<doneProgramV.size(); ++i){
+    for(short i(0); i<doneProgramsV.size(); ++i){
         GOTOXY(60, (i*4)+4);
-        std::cout << "ID: " << doneProgramV[i]->getID();
+        std::cout << "ID: " << doneProgramsV[i]->getID();
         GOTOXY(60, (i*4)+5);
-        std::cout << "OP: " << doneProgramV[i]->getOperation();
+        std::cout << "OP: " << doneProgramsV[i]->getOperation();
         GOTOXY(60, (i*4)+6);
-        std::cout << "R: " << doneProgramV[i]->getResult();
+        std::cout << "R: " << doneProgramsV[i]->getResult();
     }
 }
 
@@ -539,14 +675,16 @@ void processing::bcp()
     CLEAR;
 
     //done programs
-    for (short i(0); i < doneProgramV.size(); ++i){
-        auxP = doneProgramV[i];
+    for (short i(0); i < doneProgramsV.size(); ++i){
+        auxP = doneProgramsV[i];
         printData();
     }
     
     //in execution program
-    auxP = inExecutionP;
-    printData();
+    if(inExecutionP != NULL){
+        auxP = inExecutionP;
+        printData();
+    }
     
     //ready programs
     for(short i(0); i < readyProgramsV.size(); ++i){
@@ -560,6 +698,12 @@ void processing::bcp()
         printData();
     }
     
+    //suspended programs
+    for (short i(0); i < suspendedProgramsV.size(); ++i){
+        auxP = suspendedProgramsV[i];
+        printData();
+    }
+
     //new programs
     for(short i(0); i < newProgramsV.size(); ++i){
         auxP = newProgramsV[i];
@@ -579,7 +723,7 @@ void processing::printData()
         std::cout << GREEN;
     else if (auxP->getState() == "en ejecucion")
         std::cout << YELLOW;
-    else if (auxP->getState() == "bloqueado")
+    else if (auxP->getState() == "bloqueado" || auxP->getState() == "suspendido")
         std::cout << RED;
     else
         std::cout << CYAN;
@@ -599,8 +743,89 @@ void processing::printData()
 void processing::finishedProgram()
 {
     CLEAR;    
-    for(short i(0); i<doneProgramV.size(); ++i){
-        auxP = doneProgramV[i];
+    for(short i(0); i<doneProgramsV.size(); ++i){
+        auxP = doneProgramsV[i];
         printData();
+    }
+}
+
+void processing::writeToDisk(program* p)
+{
+    std::fstream sFile("suspended.txt", std::ios::out | std::ios::app);
+    if(sFile.is_open()){
+        sFile << "ID:"<< p->getID() << '~';
+        sFile << "OP:" << p->getOperation() << '\n';
+        sFile.close();
+    }
+}
+
+void processing::readFromDisk()
+{
+    std::fstream sFile("suspended.txt", std::ios::in);
+    std::fstream sFileAux("auxiliary.txt", std::ios::out | std::ios::app);
+    std::string line;
+    int weight;
+
+    std::vector<program> pArray;
+    program pAuxArray;
+
+    if(sFile.is_open() && sFileAux.is_open()){
+        getline(sFile, line, '~');
+        getline(sFile, line, '\n');
+        
+        pArray.clear();
+        
+        while(!sFile.eof()){
+            //ID
+            getline(sFile, line, ':');
+            getline(sFile, line, '~');
+            pAuxArray.setID(line);
+
+            //Op
+            getline(sFile, line, ':');
+            getline(sFile, line, '\n');
+            pAuxArray.setOperation(line);
+            
+            if(sFile.eof())
+                break;
+            
+            pArray.push_back(pAuxArray);
+        }
+        for(short i(0); i<pArray.size(); ++i){
+            pAuxArray = pArray[i];
+            sFileAux << "ID:" << pAuxArray.getID() << '~';
+            sFileAux << "OP:" << pAuxArray.getOperation() << '\n';
+        }
+
+        sFile.close();
+        sFileAux.close();
+        remove("suspended.txt");
+        rename("auxiliary.txt", "suspended.txt");
+    }
+}
+
+void processing::showSuspended()
+{
+    GOTOXY(90, 3);
+    std::cout << RED << "Suspendidos: " << YELLOW << suspendedProgramsV.size() << RESET;
+
+    GOTOXY(90,4);
+    std::cout << "ID: ";
+    if (suspendedProgramsV.empty())
+        std::cout << "--";
+    else{
+        if (stoi(suspendedProgramsV[0]->getID()) < 10)
+            std::cout << "0";
+        std::cout << suspendedProgramsV[0]->getID();
+    } 
+
+    GOTOXY(90, 5);
+    std::cout << "Peso: ";
+    if (suspendedProgramsV.empty())
+        std::cout << "--";
+    else{
+        if (suspendedProgramsV[0]->getWeight() < 10)
+            std::cout << "0";
+        std::cout << suspendedProgramsV[0]->getWeight();
     }
 }
