@@ -198,8 +198,9 @@ void processing::updateMemoryState()
             if (memory[i].usage == blockedProgramsV.back()->getID())
                 memory[i].state = "Bloqueado";
 
-        if (memory[i].usage == inExecutionP->getID())
-            memory[i].state = "En ejecucion";
+        if(inExecutionP != NULL)
+            if (memory[i].usage == inExecutionP->getID())
+                memory[i].state = "En ejecucion";
         
         for(int j(0); j<readyProgramsV.size(); ++j){
             if (memory[i].usage == readyProgramsV[j]->getID() && memory[i].state != "Listo")
@@ -400,27 +401,31 @@ void processing::inExecutionProgram()
                 break;
             
             case 's': case 'S':
-                //change its state, sent to suspended, written to disk
-                blockedProgramsV[0]->setState("suspendido");
-                suspendedProgramsV.push_back(blockedProgramsV[0]);
-                writeToDisk(blockedProgramsV[0]);
-                
-                //erase it from blocked and update the queues
-                blockedProgramsV.erase(blockedProgramsV.begin());
-                clearScreen();
+                if(!blockedProgramsV.empty()){
+                    //change its state, sent to suspended, written to disk
+                    blockedProgramsV[0]->setState("suspendido");
+                    suspendedProgramsV.push_back(blockedProgramsV[0]);
+                    writeToDisk(blockedProgramsV[0]);
+                    
+                    //erase it from blocked and update the queues
+                    blockedProgramsV.erase(blockedProgramsV.begin());
+                    clearScreen();
+                }
                 break;
 
             case 'r': case 'R':
                 //we take back the program from the disk
-                readFromDisk();
-                auxP = suspendedProgramsV[0];
-                auxP->setBlockedTime(5);
-                suspendedBack = true;
-                updateOnQueuePrograms();
+                if(!suspendedProgramsV.empty()){
+                    readFromDisk();
+                    auxP = suspendedProgramsV[0];
+                    auxP->setBlockedTime(5);
+                    suspendedBack = true;
+                    updateOnQueuePrograms();
 
-                //update queue's printing
-                showSuspended();
-                blockedProgramsQueue();
+                    //update queue's printing
+                    showSuspended();
+                    blockedProgramsQueue();
+                }
                 break;
 
             default:
@@ -530,32 +535,36 @@ void processing::inExecutionProgram()
                 break;
             
             case 's': case 'S':
-                //change its state, sent to suspended, written to disk
-                blockedProgramsV[0]->setState("suspendido");
-                suspendedProgramsV.push_back(blockedProgramsV[0]);
-                writeToDisk(blockedProgramsV[0]);
-                
-                //erase it from blocked and update the queues
-                blockedProgramsV.erase(blockedProgramsV.begin()+0);
-                updateMemoryState();
+                if(!blockedProgramsV.empty()){
+                    //change its state, sent to suspended, written to disk
+                    blockedProgramsV[0]->setState("suspendido");
+                    suspendedProgramsV.push_back(blockedProgramsV[0]);
+                    writeToDisk(blockedProgramsV[0]);
+                    
+                    //erase it from blocked and update the queues
+                    blockedProgramsV.erase(blockedProgramsV.begin()+0);
+                    updateMemoryState();
 
-                //we check if there's the space for a new one
-                updateOnQueuePrograms();
-                updateMemoryState();
-                clearScreen();
+                    //we check if there's the space for a new one
+                    updateOnQueuePrograms();
+                    updateMemoryState();
+                    clearScreen();
+                }
                 break;
 
             case 'r': case 'R':
-                //we take back the program from the disk
-                readFromDisk();
-                auxP = suspendedProgramsV[0];
-                auxP->setBlockedTime(5);
-                suspendedBack = true;
-                updateOnQueuePrograms();
+                if(!suspendedProgramsV.empty()){
+                    //we take back the program from the disk
+                    readFromDisk();
+                    auxP = suspendedProgramsV[0];
+                    auxP->setBlockedTime(5);
+                    suspendedBack = true;
+                    updateOnQueuePrograms();
 
-                //update queue's printing
-                showSuspended();
-                blockedProgramsQueue();
+                    //update queue's printing
+                    showSuspended();
+                    blockedProgramsQueue();
+                }
                 break;
             
             default:
@@ -754,6 +763,7 @@ void processing::writeToDisk(program* p)
     std::fstream sFile("suspended.txt", std::ios::out | std::ios::app);
     if(sFile.is_open()){
         sFile << "ID:"<< p->getID() << '~';
+        sFile << "Peso:" << p->getWeight() << '~';
         sFile << "OP:" << p->getOperation() << '\n';
         sFile.close();
     }
@@ -771,6 +781,7 @@ void processing::readFromDisk()
 
     if(sFile.is_open() && sFileAux.is_open()){
         getline(sFile, line, '~');
+        getline(sFile, line, '~');
         getline(sFile, line, '\n');
         
         pArray.clear();
@@ -781,19 +792,27 @@ void processing::readFromDisk()
             getline(sFile, line, '~');
             pAuxArray.setID(line);
 
+            if(sFile.eof())
+                break;
+
+            //Weight
+            getline(sFile, line, ':');
+            getline(sFile, line, '~');
+            weight = stoi(line);
+            pAuxArray.setWeight(weight);
+
             //Op
             getline(sFile, line, ':');
             getline(sFile, line, '\n');
             pAuxArray.setOperation(line);
             
-            if(sFile.eof())
-                break;
             
             pArray.push_back(pAuxArray);
         }
         for(short i(0); i<pArray.size(); ++i){
             pAuxArray = pArray[i];
             sFileAux << "ID:" << pAuxArray.getID() << '~';
+            sFileAux << "Peso:" << pAuxArray.getWeight() << '~';
             sFileAux << "OP:" << pAuxArray.getOperation() << '\n';
         }
 
